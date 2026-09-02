@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Split Pad</title>
+<style>
+*{box-sizing:border-box;user-select:none}body{margin:0;background:#080912;color:#fff;font-family:Arial,sans-serif;height:100vh;overflow:hidden;touch-action:none}
+main{height:100vh;display:grid;grid-template-columns:1fr 1fr}.half{position:relative;display:grid;place-items:center}.half:first-child{background:linear-gradient(145deg,#321258,#110820)}.half:last-child{background:linear-gradient(145deg,#06365a,#06101c)}.zone{width:72%;height:72%;border-radius:40px;border:1px solid #ffffff25;position:relative}.zone:after{content:"";position:absolute;top:50%;left:12%;right:12%;height:1px;background:#ffffff24}.dot{position:absolute;left:50%;top:50%;width:64px;height:64px;border-radius:50%;transform:translate(-50%,-50%);background:#fff}.name{position:absolute;top:18px;left:20px;font-size:10px;letter-spacing:.16em;color:#ffffff77}
+</style>
+</head>
+<body>
+
+<main><div class="half"><div class="name">LEFT MOTOR</div><div class="zone" data-m="A"><i class="dot"></i></div></div><div class="half"><div class="name">RIGHT MOTOR</div><div class="zone" data-m="B"><i class="dot"></i></div></div></main>
+
+<script>
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+let lastA=999,lastB=999,lastT=0;
+function sendSigned(a,b,force=false){
+  a=Math.round(clamp(a,-255,255)); b=Math.round(clamp(b,-255,255));
+  const now=Date.now();
+  if(!force && now-lastT<55 && Math.abs(a-lastA)<3 && Math.abs(b-lastB)<3) return;
+  lastT=now; lastA=a; lastB=b;
+  const send=(m,v)=>fetch(`/joy?m=${m}&s=${Math.abs(v)}&d=${v>=0?'U':'D'}`).catch(()=>{});
+  send('A',a); send('B',b);
+}
+function stopAll(){ lastA=lastB=0; fetch('/PARAR').catch(()=>{}); }
+window.addEventListener('pagehide',stopAll);
+
+document.querySelectorAll('.zone').forEach(z=>{let active=false,m=z.dataset.m,d=z.querySelector('.dot');
+function move(e){let r=z.getBoundingClientRect(),y=clamp((e.clientY-r.top)/r.height,0,1),v=Math.round((.5-y)*510);d.style.top=(y*100)+'%';if(m==='A')sendSigned(v,lastB===999?0:lastB);else sendSigned(lastA===999?0:lastA,v)}
+z.onpointerdown=e=>{active=true;z.setPointerCapture?.(e.pointerId);move(e)};z.onpointermove=e=>{if(active)move(e)};z.onpointerup=()=>{active=false;d.style.top='50%';if(m==='A')sendSigned(0,lastB===999?0:lastB,true);else sendSigned(lastA===999?0:lastA,0,true)}})
+</script>
+</body>
+</html>

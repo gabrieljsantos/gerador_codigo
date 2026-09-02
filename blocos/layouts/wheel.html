@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Volante</title>
+<style>
+*{box-sizing:border-box;user-select:none}body{margin:0;background:#0d1014;color:white;font-family:Arial,sans-serif;height:100vh;overflow:hidden;touch-action:none}
+header{height:58px;display:flex;align-items:center;justify-content:space-between;padding:0 20px;border-bottom:1px solid #252b33}header b{font-size:12px;letter-spacing:.17em;color:#ffb341}
+main{height:calc(100vh - 58px);display:grid;grid-template-columns:1.2fr .8fr;align-items:center;padding:18px 30px;gap:28px}.wheelZone{display:grid;place-items:center;height:100%}.wheel{width:min(45vh,48vw,300px);aspect-ratio:1;border:24px solid #2b3037;border-radius:50%;position:relative;transition:.08s}.wheel:before,.wheel:after{content:"";position:absolute;left:50%;top:50%;background:#2b3037;transform-origin:center}.wheel:before{width:20px;height:45%;transform:translate(-50%,0)}.wheel:after{width:60%;height:20px;transform:translate(-50%,-50%)}
+.pedals{display:grid;gap:14px}.pedals button{height:120px;border:0;border-radius:20px;font-weight:900;font-size:18px}.go{background:#d8ff67;color:#12170a}.back{background:#ff775e;color:#1c0804}
+</style>
+</head>
+<body>
+
+<header><b>STEERING WHEEL</b><span>arraste o volante para virar</span></header>
+<main><div class="wheelZone"><div class="wheel" id="wheel"></div></div><div class="pedals"><button class="go" id="go">ACELERAR</button><button class="back" id="back">RÉ</button></div></main>
+
+<script>
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+let lastA=999,lastB=999,lastT=0;
+function sendSigned(a,b,force=false){
+  a=Math.round(clamp(a,-255,255)); b=Math.round(clamp(b,-255,255));
+  const now=Date.now();
+  if(!force && now-lastT<55 && Math.abs(a-lastA)<3 && Math.abs(b-lastB)<3) return;
+  lastT=now; lastA=a; lastB=b;
+  const send=(m,v)=>fetch(`/joy?m=${m}&s=${Math.abs(v)}&d=${v>=0?'U':'D'}`).catch(()=>{});
+  send('A',a); send('B',b);
+}
+function stopAll(){ lastA=lastB=0; fetch('/PARAR').catch(()=>{}); }
+window.addEventListener('pagehide',stopAll);
+
+let steer=0,throttle=0;const wheel=document.getElementById('wheel');
+function mix(){sendSigned(throttle+steer,throttle-steer)}
+function steerAt(e){let r=wheel.getBoundingClientRect(),x=(e.clientX-(r.left+r.width/2))/(r.width/2);steer=Math.round(clamp(x,-1,1)*150);wheel.style.transform=`rotate(${steer/5}deg)`;mix()}
+wheel.onpointerdown=e=>{wheel.setPointerCapture?.(e.pointerId);steerAt(e)};wheel.onpointermove=e=>{if(e.buttons)steerAt(e)};wheel.onpointerup=()=>{steer=0;wheel.style.transform='rotate(0)';mix()};
+function bind(id,v){let b=document.getElementById(id);b.onpointerdown=()=>{throttle=v;mix()};b.onpointerup=b.onpointerleave=()=>{throttle=0;mix()}}
+bind('go',210);bind('back',-180);
+</script>
+</body>
+</html>

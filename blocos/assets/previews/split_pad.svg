@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="338" viewBox="0 0 600 338">
+<rect width="600" height="338" fill="#101010"/>
+<rect x="18" y="18" width="564" height="302" rx="18" fill="none" stroke="#202020"/>
+<rect x="195" y="135" width="95" height="150" rx="26" fill="#242424"/><rect x="310" y="135" width="95" height="150" rx="26" fill="#242424"/><circle cx="242" cy="190" r="20" fill="#b269ff"/><circle cx="357" cy="235" r="20" fill="#b269ff"/>
+<text x="34" y="48" fill="#777" font-family="Arial,sans-serif" font-size="13" font-weight="700" letter-spacing="2">SPLIT PAD</text>
+<circle cx="552" cy="43" r="6" fill="#b269ff"/>
+</svg>

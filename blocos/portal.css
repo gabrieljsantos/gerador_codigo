@@ -1,0 +1,12 @@
+.portal-back{position:fixed;left:14px;bottom:14px;z-index:100;padding:10px 13px;border:1px solid #444;border-radius:99px;background:#0b0b0be8;color:#fff;text-decoration:none;font-size:10px;font-weight:900;letter-spacing:.08em;box-shadow:0 8px 25px #0008;backdrop-filter:blur(8px)}
+.portal-back:hover{background:var(--purple);border-color:var(--purple)}
+.hardware-card select option{background:#090a0e;color:#fff}
+.dropzone{position:relative}.block.drop-before{position:relative}.block.drop-before:before{content:"SOLTAR AQUI";position:absolute;z-index:3;left:0;right:0;top:-7px;height:3px;border-radius:3px;background:var(--lime);color:var(--lime);font-size:8px;font-weight:950;letter-spacing:1px;line-height:0;text-align:right;box-shadow:0 0 12px #c7ff3566}.drop-at-end:after{content:"SOLTAR AQUI";display:block;height:3px;margin:16px 0 2px;border-radius:3px;background:var(--lime);color:var(--lime);font-size:8px;font-weight:950;letter-spacing:1px;line-height:0;text-align:right;box-shadow:0 0 12px #c7ff3566}.block-duplicate{margin-left:auto;border:0;background:#0003;color:#fff;width:25px;height:25px;border-radius:6px;cursor:pointer;font-size:14px}.block-duplicate:hover{background:#0007}.block-duplicate+.block-remove{margin-left:0}
+.support-section{min-height:540px;position:relative;overflow:hidden;display:flex;align-items:center;justify-content:flex-end;padding:70px max(22px,8vw);border-top:1px solid var(--line);background:radial-gradient(circle at 26% 75%,#492780,transparent 35%),#0b0b0e}
+.support-person{position:absolute;left:5vw;bottom:0;max-width:43%;max-height:94%;object-fit:contain;filter:drop-shadow(0 30px 50px #000)}
+.support-copy{position:relative;z-index:2;width:min(48%,590px)}
+.support-copy h2{font-size:clamp(38px,5vw,62px);line-height:.95;letter-spacing:-.055em;margin:10px 0 22px}
+.support-copy>p:not(.kicker){color:var(--muted);line-height:1.6}
+.support-pix{display:flex;align-items:center;gap:16px;margin-top:22px}.support-pix img{width:130px;height:130px;background:#fff;padding:5px}.support-pix span,.support-pix b{display:block}.support-pix span{color:var(--muted);font-size:12px;line-height:1.5}.support-pix b{color:var(--lime);font-size:26px}
+.support-hearts{position:absolute;left:28%;top:18%;color:var(--lime);opacity:.16;font-size:28px;letter-spacing:22px;transform:rotate(-9deg)}
+@media(max-width:760px){.support-section{justify-content:flex-start;padding-bottom:390px}.support-copy{width:100%}.support-person{left:50%;transform:translateX(-50%);max-width:90%;max-height:390px}}

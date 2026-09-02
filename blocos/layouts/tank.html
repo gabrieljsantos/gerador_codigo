@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Tank Drive</title>
+<style>
+*{box-sizing:border-box;user-select:none}body{margin:0;background:#090b08;color:#e9efe5;font-family:Arial,sans-serif;height:100vh;overflow:hidden}
+header{height:58px;display:flex;align-items:center;justify-content:space-between;padding:0 22px;border-bottom:1px solid #26321f}header b{font-size:12px;letter-spacing:.18em;color:#b6d77d}
+main{height:calc(100vh - 58px);display:grid;grid-template-columns:1fr 1fr;gap:28px;padding:20px 24px 76px}.track{display:grid;grid-template-rows:1fr 1fr;gap:12px}.track button{border:1px solid #33442b;background:#151c12;color:#dce9d2;border-radius:20px;font-size:34px}.track button:active{background:#92b85a;color:#0b0f08}.stop{position:fixed;left:20px;right:20px;bottom:14px;height:48px;border:0;border-radius:12px;background:#d7e7c3;color:#10150c;font-weight:900}
+</style>
+</head>
+<body>
+
+<header><b>TANK DRIVE</b><span>cada lado é independente</span></header>
+<main><div class="track"><button data-v="255" data-m="A">▲</button><button data-v="-255" data-m="A">▼</button></div><div class="track"><button data-v="255" data-m="B">▲</button><button data-v="-255" data-m="B">▼</button></div></main><button class="stop" onclick="stopAll()">PARAR</button>
+
+<script>
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+let lastA=999,lastB=999,lastT=0;
+function sendSigned(a,b,force=false){
+  a=Math.round(clamp(a,-255,255)); b=Math.round(clamp(b,-255,255));
+  const now=Date.now();
+  if(!force && now-lastT<55 && Math.abs(a-lastA)<3 && Math.abs(b-lastB)<3) return;
+  lastT=now; lastA=a; lastB=b;
+  const send=(m,v)=>fetch(`/joy?m=${m}&s=${Math.abs(v)}&d=${v>=0?'U':'D'}`).catch(()=>{});
+  send('A',a); send('B',b);
+}
+function stopAll(){ lastA=lastB=0; fetch('/PARAR').catch(()=>{}); }
+window.addEventListener('pagehide',stopAll);
+
+document.querySelectorAll('[data-v]').forEach(b=>{let down=false,m=b.dataset.m,v=Number(b.dataset.v);
+ const on=()=>{down=true;if(m==='A')sendSigned(v,lastB===999?0:lastB,true);else sendSigned(lastA===999?0:lastA,v,true)};
+ const off=()=>{if(!down)return;down=false;if(m==='A')sendSigned(0,lastB===999?0:lastB,true);else sendSigned(lastA===999?0:lastA,0,true)};
+ b.onpointerdown=on;b.onpointerup=off;b.onpointerleave=off;b.onpointercancel=off;
+});
+</script>
+</body>
+</html>

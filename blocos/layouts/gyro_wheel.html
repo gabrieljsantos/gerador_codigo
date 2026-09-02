@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Giro — Volante</title>
+<style>
+*{box-sizing:border-box;user-select:none}body{margin:0;background:#130b0a;color:white;font-family:Arial,sans-serif;height:100vh;overflow:hidden}
+header{height:58px;display:flex;align-items:center;justify-content:space-between;padding:0 18px;border-bottom:1px solid #3d2520}header b{font-size:11px;letter-spacing:.17em;color:#ff8a63}header span{font-size:10px;color:#9e766c}
+main{height:calc(100vh - 58px);display:grid;grid-template-columns:1fr .7fr;gap:30px;align-items:center;padding:20px 30px}.wheel{width:min(48vw,320px);aspect-ratio:1;border:23px solid #49312d;border-radius:50%;margin:auto;position:relative;transition:.07s}.wheel:after{content:"";position:absolute;left:15%;right:15%;top:50%;height:18px;background:#49312d;transform:translateY(-50%)}
+.controls{display:grid;gap:12px}.controls button{height:82px;border:0;border-radius:16px;font-weight:900}.enable{height:48px!important;border:1px solid #65443d!important;background:transparent!important;color:#ffd5ca}.enable.on{background:#ff8a63!important;color:#2b0f08!important}.go{background:#ffd166}.back{background:#ef6f6c}.cal{background:#31201d!important;color:#dba99d}
+</style>
+</head>
+<body>
+
+<header><b>GYRO WHEEL</b><span id="sensorStatus">GIRO DO CELULAR = DIREÇÃO</span></header><main><div class="wheel" id="wheel"></div><div class="controls"><button class="enable" id="enable" onclick="enableSensor()">ATIVAR SENSOR</button><button class="go" id="go">ACELERAR</button><button class="back" id="back">RÉ</button><button class="cal" onclick="calibrate()">CENTRALIZAR</button></div></main>
+
+<script>
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+let lastA=999,lastB=999,lastT=0;
+function sendSigned(a,b,force=false){
+  a=Math.round(clamp(a,-255,255)); b=Math.round(clamp(b,-255,255));
+  const now=Date.now();
+  if(!force && now-lastT<55 && Math.abs(a-lastA)<3 && Math.abs(b-lastB)<3) return;
+  lastT=now; lastA=a; lastB=b;
+  const send=(m,v)=>fetch(`/joy?m=${m}&s=${Math.abs(v)}&d=${v>=0?'U':'D'}`).catch(()=>{});
+  send('A',a); send('B',b);
+}
+function stopAll(){ lastA=lastB=0; fetch('/PARAR').catch(()=>{}); }
+window.addEventListener('pagehide',stopAll);
+
+let sensorOn=false,zeroBeta=0,zeroGamma=0,lastBeta=0,lastGamma=0;
+const statusEl=document.getElementById('sensorStatus');
+async function enableSensor(){
+ try{
+  if(typeof DeviceOrientationEvent!=='undefined' && typeof DeviceOrientationEvent.requestPermission==='function'){
+    const p=await DeviceOrientationEvent.requestPermission(); if(p!=='granted')throw new Error('Permissão negada');
+  }
+  window.addEventListener('deviceorientation',orientation,true);sensorOn=true;
+  if(statusEl)statusEl.textContent='SENSOR ATIVO';
+  document.getElementById('enable')?.classList.add('on');
+ }catch(e){if(statusEl)statusEl.textContent='USE O CONTROLE MANUAL';}
+}
+function calibrate(){zeroBeta=lastBeta;zeroGamma=lastGamma;if(statusEl)statusEl.textContent='CALIBRADO';}
+
+let steer=0,throttle=0;function mix(){sendSigned(throttle+steer,throttle-steer)}
+function orientation(e){lastBeta=e.beta||0;lastGamma=e.gamma||0;let s=clamp((lastGamma-zeroGamma)/32,-1,1);if(Math.abs(s)<.06)s=0;steer=s*160;wheel.style.transform=`rotate(${s*32}deg)`;mix()}
+function bind(id,v){let b=document.getElementById(id);b.onpointerdown=()=>{throttle=v;mix()};b.onpointerup=b.onpointerleave=()=>{throttle=0;mix()}}
+bind('go',210);bind('back',-180)
+</script>
+</body>
+</html>

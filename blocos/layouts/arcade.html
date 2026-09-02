@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Arcade</title>
+<style>
+*{box-sizing:border-box;user-select:none}body{margin:0;background:linear-gradient(145deg,#160722,#061429);color:white;font-family:Arial,sans-serif;height:100vh;overflow:hidden;touch-action:none}
+header{height:60px;padding:0 22px;display:flex;align-items:center;justify-content:space-between}header b{letter-spacing:.2em;font-size:12px;color:#ff5fd2}header span{color:#6de8ff;font-size:11px}
+main{height:calc(100vh - 60px);display:grid;grid-template-columns:1fr 1fr;gap:26px;padding:20px 28px 82px}.pad{display:grid;place-items:center;position:relative;border-radius:30px;background:#ffffff08;border:1px solid #ffffff12}
+.ring{width:min(30vw,220px);height:min(30vw,220px);border-radius:50%;border:14px solid #3a2050;background:#100d19;position:relative}.knob{position:absolute;left:50%;top:50%;width:72px;height:72px;border-radius:50%;background:linear-gradient(145deg,#ff5fd2,#7d49ff);transform:translate(-50%,-50%);box-shadow:0 0 30px #ff5fd255}
+.tag{position:absolute;top:16px;left:18px;font-size:10px;letter-spacing:.13em;color:#8b7999}.stop{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);border:0;background:#6de8ff;color:#031017;border-radius:999px;padding:12px 28px;font-weight:900}
+</style>
+</head>
+<body>
+
+<header><b>NEON ARCADE</b><span>arraste verticalmente</span></header>
+<main><div class="pad" data-m="A"><div class="tag">LEFT</div><div class="ring"><div class="knob"></div></div></div><div class="pad" data-m="B"><div class="tag">RIGHT</div><div class="ring"><div class="knob"></div></div></div></main>
+<button class="stop" onclick="stopAll()">STOP</button>
+
+<script>
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+let lastA=999,lastB=999,lastT=0;
+function sendSigned(a,b,force=false){
+  a=Math.round(clamp(a,-255,255)); b=Math.round(clamp(b,-255,255));
+  const now=Date.now();
+  if(!force && now-lastT<55 && Math.abs(a-lastA)<3 && Math.abs(b-lastB)<3) return;
+  lastT=now; lastA=a; lastB=b;
+  const send=(m,v)=>fetch(`/joy?m=${m}&s=${Math.abs(v)}&d=${v>=0?'U':'D'}`).catch(()=>{});
+  send('A',a); send('B',b);
+}
+function stopAll(){ lastA=lastB=0; fetch('/PARAR').catch(()=>{}); }
+window.addEventListener('pagehide',stopAll);
+
+document.querySelectorAll('.pad').forEach(p=>{const k=p.querySelector('.knob'),m=p.dataset.m;let active=false;
+ function move(e){let r=p.querySelector('.ring').getBoundingClientRect(),dy=clamp(e.clientY-(r.top+r.height/2),-62,62),v=Math.round(-dy/62*255);k.style.transform=`translate(-50%,calc(-50% + ${dy}px))`;if(m==='A')sendSigned(v,lastB===999?0:lastB);else sendSigned(lastA===999?0:lastA,v)}
+ p.onpointerdown=e=>{active=true;p.setPointerCapture?.(e.pointerId);move(e)};p.onpointermove=e=>{if(active)move(e)};p.onpointerup=()=>{active=false;k.style.transform='translate(-50%,-50%)';if(m==='A')sendSigned(0,lastB===999?0:lastB,true);else sendSigned(lastA===999?0:lastA,0,true)}
+});
+</script>
+</body>
+</html>

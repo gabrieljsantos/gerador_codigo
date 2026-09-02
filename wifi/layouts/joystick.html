@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Joystick duplo</title>
+<style>
+*{box-sizing:border-box;user-select:none;-webkit-user-select:none}body{margin:0;background:radial-gradient(circle at 50% 0,#27233f,#101116 55%);color:#fff;font-family:Arial,sans-serif;height:100vh;overflow:hidden;touch-action:none}
+.head{height:62px;display:flex;align-items:center;justify-content:space-between;padding:0 22px;border-bottom:1px solid #ffffff12}.head b{letter-spacing:.14em;font-size:12px}.head span{color:#9f8cff;font-size:11px}
+.stage{height:calc(100vh - 62px);display:flex;align-items:center;justify-content:center;gap:min(12vw,100px);padding:20px}
+.unit{text-align:center}.unit label{display:block;font-size:11px;letter-spacing:.14em;color:#888;margin-bottom:13px}
+.track{width:78px;height:min(58vh,340px);border-radius:40px;background:#171921;border:1px solid #343746;position:relative;box-shadow:inset 0 0 28px #0008}
+.track:before{content:"";position:absolute;left:17px;right:17px;top:50%;height:1px;background:#555}
+.knob{position:absolute;left:50%;top:50%;width:58px;height:58px;border-radius:50%;background:linear-gradient(145deg,#b09cff,#6f58ff);box-shadow:0 8px 24px #765eff55;transform:translate(-50%,-50%)}
+.val{margin-top:12px;font-weight:bold;color:#b5a6ff}
+</style>
+</head>
+<body>
+
+<div class="head"><b>DUAL STICKS</b><span>2 motores independentes</span></div>
+<div class="stage">
+  <div class="unit"><label>MOTOR ESQUERDO</label><div class="track" data-m="A"><div class="knob"></div></div><div class="val">0</div></div>
+  <div class="unit"><label>MOTOR DIREITO</label><div class="track" data-m="B"><div class="knob"></div></div><div class="val">0</div></div>
+</div>
+
+<script>
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+let lastA=999,lastB=999,lastT=0;
+function sendSigned(a,b,force=false){
+  a=Math.round(clamp(a,-255,255)); b=Math.round(clamp(b,-255,255));
+  const now=Date.now();
+  if(!force && now-lastT<55 && Math.abs(a-lastA)<3 && Math.abs(b-lastB)<3) return;
+  lastT=now; lastA=a; lastB=b;
+  const send=(m,v)=>fetch(`/joy?m=${m}&s=${Math.abs(v)}&d=${v>=0?'U':'D'}`).catch(()=>{});
+  send('A',a); send('B',b);
+}
+function stopAll(){ lastA=lastB=0; fetch('/PARAR').catch(()=>{}); }
+window.addEventListener('pagehide',stopAll);
+
+document.querySelectorAll('.track').forEach(track=>{
+ const knob=track.querySelector('.knob'),val=track.parentElement.querySelector('.val'),m=track.dataset.m;
+ let active=false;
+ function move(e){const r=track.getBoundingClientRect();let y=clamp(e.clientY-r.top,29,r.height-29),c=r.height/2,span=c-29,s=Math.round((c-y)/span*255);
+ knob.style.top=y+'px';val.textContent=(s>0?'+':'')+s;
+ if(m==='A')sendSigned(s,lastB===999?0:lastB);else sendSigned(lastA===999?0:lastA,s)}
+ function reset(){knob.style.top='50%';val.textContent='0';if(m==='A')sendSigned(0,lastB===999?0:lastB,true);else sendSigned(lastA===999?0:lastA,0,true)}
+ track.onpointerdown=e=>{active=true;track.setPointerCapture?.(e.pointerId);move(e)};
+ track.onpointermove=e=>{if(active)move(e)};track.onpointerup=()=>{active=false;reset()};track.onpointercancel=()=>{active=false;reset()}
+});
+</script>
+</body>
+</html>

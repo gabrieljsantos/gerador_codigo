@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Inclinação — Tank</title>
+<style>
+*{box-sizing:border-box;user-select:none}body{margin:0;background:#11140b;color:#f1f4df;font-family:Arial,sans-serif;height:100vh;overflow:hidden}
+header{height:58px;display:flex;align-items:center;justify-content:space-between;padding:0 18px;border-bottom:1px solid #343a22}header b{font-size:11px;letter-spacing:.17em;color:#d5e564}header span{font-size:10px;color:#8b9170}
+main{height:calc(100vh - 58px);display:grid;grid-template-columns:1fr 1fr;gap:22px;padding:28px}.gauge{display:flex;flex-direction:column;justify-content:center;align-items:center;gap:15px}.line{height:55vh;width:48px;background:#242a17;border-radius:30px;position:relative}.fill{position:absolute;left:6px;right:6px;top:50%;bottom:50%;background:#d5e564;border-radius:20px}.num{font-size:42px;font-weight:900}.gauge small{letter-spacing:.14em;color:#899064}.actions{position:fixed;left:50%;bottom:15px;transform:translateX(-50%);display:flex;gap:8px}.actions button{border:1px solid #49512e;background:#181d10;color:#edf5c8;border-radius:999px;padding:9px 13px}.actions button.on{background:#d5e564;color:#151809}
+</style>
+</head>
+<body>
+
+<header><b>TILT TANK</b><span id="sensorStatus">INCLINE CADA LADO</span></header><main>
+<div class="gauge"><small>MOTOR ESQUERDO</small><div class="line"><i class="fill" id="fa"></i></div><div class="num" id="na">0</div></div>
+<div class="gauge"><small>MOTOR DIREITO</small><div class="line"><i class="fill" id="fb"></i></div><div class="num" id="nb">0</div></div>
+</main><div class="actions"><button id="enable" onclick="enableSensor()">ATIVAR</button><button onclick="calibrate()">CALIBRAR</button></div>
+
+<script>
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+let lastA=999,lastB=999,lastT=0;
+function sendSigned(a,b,force=false){
+  a=Math.round(clamp(a,-255,255)); b=Math.round(clamp(b,-255,255));
+  const now=Date.now();
+  if(!force && now-lastT<55 && Math.abs(a-lastA)<3 && Math.abs(b-lastB)<3) return;
+  lastT=now; lastA=a; lastB=b;
+  const send=(m,v)=>fetch(`/joy?m=${m}&s=${Math.abs(v)}&d=${v>=0?'U':'D'}`).catch(()=>{});
+  send('A',a); send('B',b);
+}
+function stopAll(){ lastA=lastB=0; fetch('/PARAR').catch(()=>{}); }
+window.addEventListener('pagehide',stopAll);
+
+let sensorOn=false,zeroBeta=0,zeroGamma=0,lastBeta=0,lastGamma=0;
+const statusEl=document.getElementById('sensorStatus');
+async function enableSensor(){
+ try{
+  if(typeof DeviceOrientationEvent!=='undefined' && typeof DeviceOrientationEvent.requestPermission==='function'){
+    const p=await DeviceOrientationEvent.requestPermission(); if(p!=='granted')throw new Error('Permissão negada');
+  }
+  window.addEventListener('deviceorientation',orientation,true);sensorOn=true;
+  if(statusEl)statusEl.textContent='SENSOR ATIVO';
+  document.getElementById('enable')?.classList.add('on');
+ }catch(e){if(statusEl)statusEl.textContent='USE O CONTROLE MANUAL';}
+}
+function calibrate(){zeroBeta=lastBeta;zeroGamma=lastGamma;if(statusEl)statusEl.textContent='CALIBRADO';}
+
+function orientation(e){lastBeta=e.beta||0;lastGamma=e.gamma||0;
+ // mistura inclinacao longitudinal com roll para criar duas esteiras
+ let forward=clamp((zeroBeta-lastBeta)/30,-1,1),diff=clamp((lastGamma-zeroGamma)/28,-1,1);
+ let a=(forward+diff*.7)*220,b=(forward-diff*.7)*220;a=clamp(a,-255,255);b=clamp(b,-255,255);sendSigned(a,b);
+ na.textContent=Math.round(a);nb.textContent=Math.round(b);
+ const paint=(el,v)=>{if(v>=0){el.style.top=(50-v/255*48)+'%';el.style.bottom='50%'}else{el.style.top='50%';el.style.bottom=(50+v/255*48)+'%'}};
+ paint(fa,a);paint(fb,b)}
+</script>
+</body>
+</html>

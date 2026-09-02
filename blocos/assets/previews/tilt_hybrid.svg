@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="338" viewBox="0 0 600 338">
+<rect width="600" height="338" fill="#101010"/>
+<rect x="18" y="18" width="564" height="302" rx="18" fill="none" stroke="#202020"/>
+<rect x="205" y="145" width="130" height="90" rx="18" fill="#202020" stroke="#48a7ff" stroke-width="5" transform="rotate(-10 270 190)"/><rect x="355" y="132" width="70" height="145" rx="22" fill="#202020"/><circle cx="390" cy="210" r="18" fill="#48a7ff"/>
+<text x="34" y="48" fill="#777" font-family="Arial,sans-serif" font-size="13" font-weight="700" letter-spacing="2">INCLINAÇÃO + TOUCH</text>
+<circle cx="552" cy="43" r="6" fill="#48a7ff"/>
+</svg>

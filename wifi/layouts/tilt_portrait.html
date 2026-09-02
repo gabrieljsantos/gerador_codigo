@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Inclinação — Retrato</title>
+<style>
+*{box-sizing:border-box;user-select:none}body{margin:0;background:linear-gradient(180deg,#1a0f24,#09070c);color:#fff;font-family:Arial,sans-serif;height:100vh;overflow:hidden}
+header{height:58px;padding:0 18px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #35233d}header b{font-size:11px;letter-spacing:.17em;color:#ef83ff}header span{font-size:10px;color:#987aa0}
+main{height:calc(100vh - 58px);display:grid;place-items:center}.content{text-align:center}.phone{width:135px;height:245px;border:9px solid #442f49;border-radius:30px;background:#211526;margin:0 auto 22px;transition:.08s;position:relative}.phone:before{content:"";position:absolute;top:8px;left:50%;transform:translateX(-50%);width:48px;height:5px;border-radius:5px;background:#65496b}
+.values{display:flex;justify-content:center;gap:32px;margin-bottom:18px}.values div{font-size:32px;font-weight:900}.values small{display:block;font-size:9px;color:#8f7496;letter-spacing:.12em;margin-bottom:4px}
+button{border:1px solid #5a3a61;background:transparent;color:#ead9ef;border-radius:999px;padding:11px 15px;font-weight:bold;margin:4px}button.on{background:#ef83ff;color:#2b0d31}
+</style>
+</head>
+<body>
+
+<header><b>TILT • PORTRAIT</b><span id="sensorStatus">SENSOR DESATIVADO</span></header><main><div class="content">
+<div class="phone" id="phone"></div><div class="values"><div><small>FRENTE/RÉ</small><span id="v1">0</span></div><div><small>GIRO</small><span id="v2">0</span></div></div>
+<button id="enable" onclick="enableSensor()">ATIVAR SENSOR</button><button onclick="calibrate()">CALIBRAR</button>
+</div></main>
+
+<script>
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+let lastA=999,lastB=999,lastT=0;
+function sendSigned(a,b,force=false){
+  a=Math.round(clamp(a,-255,255)); b=Math.round(clamp(b,-255,255));
+  const now=Date.now();
+  if(!force && now-lastT<55 && Math.abs(a-lastA)<3 && Math.abs(b-lastB)<3) return;
+  lastT=now; lastA=a; lastB=b;
+  const send=(m,v)=>fetch(`/joy?m=${m}&s=${Math.abs(v)}&d=${v>=0?'U':'D'}`).catch(()=>{});
+  send('A',a); send('B',b);
+}
+function stopAll(){ lastA=lastB=0; fetch('/PARAR').catch(()=>{}); }
+window.addEventListener('pagehide',stopAll);
+
+let sensorOn=false,zeroBeta=0,zeroGamma=0,lastBeta=0,lastGamma=0;
+const statusEl=document.getElementById('sensorStatus');
+async function enableSensor(){
+ try{
+  if(typeof DeviceOrientationEvent!=='undefined' && typeof DeviceOrientationEvent.requestPermission==='function'){
+    const p=await DeviceOrientationEvent.requestPermission(); if(p!=='granted')throw new Error('Permissão negada');
+  }
+  window.addEventListener('deviceorientation',orientation,true);sensorOn=true;
+  if(statusEl)statusEl.textContent='SENSOR ATIVO';
+  document.getElementById('enable')?.classList.add('on');
+ }catch(e){if(statusEl)statusEl.textContent='USE O CONTROLE MANUAL';}
+}
+function calibrate(){zeroBeta=lastBeta;zeroGamma=lastGamma;if(statusEl)statusEl.textContent='CALIBRADO';}
+
+function orientation(e){lastBeta=e.beta||0;lastGamma=e.gamma||0;
+ let t=clamp((lastBeta-zeroBeta)/35,-1,1),s=clamp((lastGamma-zeroGamma)/30,-1,1);if(Math.abs(t)<.07)t=0;if(Math.abs(s)<.07)s=0;
+ let throttle=-t*205,steer=s*145;sendSigned(throttle+steer,throttle-steer);phone.style.transform=`rotate(${s*12}deg) rotateX(${t*12}deg)`;
+ v1.textContent=Math.round(throttle);v2.textContent=Math.round(steer)}
+</script>
+</body>
+</html>

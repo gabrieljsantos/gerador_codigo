@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Sliders</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#0b0d10;color:#f4f4f4;font-family:Arial,sans-serif;height:100vh;overflow:hidden}
+header{height:66px;display:flex;align-items:center;padding:0 22px;border-bottom:1px solid #222}header b{font-size:12px;letter-spacing:.18em}
+main{height:calc(100vh - 66px);display:grid;grid-template-columns:1fr 1fr;gap:30px;padding:30px}
+.motor{display:flex;flex-direction:column;justify-content:center;gap:22px}.motor h2{font-size:14px;color:#777;letter-spacing:.12em;margin:0}
+.switch{display:grid;grid-template-columns:1fr;gap:8px}.switch button{border:1px solid #333;background:#15171a;color:#aaa;border-radius:9px;padding:13px}.switch button.active{background:#fff;color:#111;border-color:#fff}
+input[type=range]{width:100%;accent-color:#ff4f7b}.number{font-size:52px;font-weight:900;letter-spacing:-.06em}.number small{font-size:12px;color:#666}
+.stop{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);border:0;background:#ff4f7b;color:#fff;border-radius:999px;padding:12px 26px;font-weight:bold}
+@media(max-width:700px){
+main{grid-template-columns:1fr;gap:18px;padding:18px;overflow:auto;height:calc(100vh - 66px)}
+.motor{min-height:300px}
+.number{font-size:42px}
+}
+</style>
+</head>
+<body>
+
+<header><b>PRECISION SLIDERS</b></header>
+<main>
+<section class="motor" data-m="A"><h2>MOTOR ESQUERDO</h2><div class="number">0 <small>/255</small></div><div class="switch"><button class="active" data-d="U">FRENTE</button><button data-d="D">RÉ</button></div><input type="range" min="0" max="255" value="0"></section>
+<section class="motor" data-m="B"><h2>MOTOR DIREITO</h2><div class="number">0 <small>/255</small></div><div class="switch"><button class="active" data-d="U">FRENTE</button><button data-d="D">RÉ</button></div><input type="range" min="0" max="255" value="0"></section>
+</main><button class="stop" onclick="stopAll()">PARAR</button>
+
+<script>
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+let lastA=999,lastB=999,lastT=0;
+function sendSigned(a,b,force=false){
+  a=Math.round(clamp(a,-255,255)); b=Math.round(clamp(b,-255,255));
+  const now=Date.now();
+  if(!force && now-lastT<55 && Math.abs(a-lastA)<3 && Math.abs(b-lastB)<3) return;
+  lastT=now; lastA=a; lastB=b;
+  const send=(m,v)=>fetch(`/joy?m=${m}&s=${Math.abs(v)}&d=${v>=0?'U':'D'}`).catch(()=>{});
+  send('A',a); send('B',b);
+}
+function stopAll(){ lastA=lastB=0; fetch('/PARAR').catch(()=>{}); }
+window.addEventListener('pagehide',stopAll);
+
+document.querySelectorAll('.motor').forEach(s=>{let d='U',m=s.dataset.m,r=s.querySelector('input'),n=s.querySelector('.number');
+ s.querySelectorAll('[data-d]').forEach(b=>b.onclick=()=>{d=b.dataset.d;s.querySelectorAll('[data-d]').forEach(x=>x.classList.remove('active'));b.classList.add('active')});
+ r.oninput=()=>{n.firstChild.nodeValue=r.value+' ';let v=(d==='U'?1:-1)*Number(r.value);if(m==='A')sendSigned(v,lastB===999?0:lastB);else sendSigned(lastA===999?0:lastA,v)};
+});
+</script>
+</body>
+</html>

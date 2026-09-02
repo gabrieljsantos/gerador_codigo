@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Inclinação — Paisagem</title>
+<style>
+*{box-sizing:border-box;user-select:none}body{margin:0;background:#061417;color:white;font-family:Arial,sans-serif;height:100vh;overflow:hidden;touch-action:none}
+header{height:58px;padding:0 18px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #163438}header b{font-size:11px;letter-spacing:.17em;color:#4ee6cd}#sensorStatus{font-size:10px;color:#6e928e}
+main{height:calc(100vh - 58px);display:grid;grid-template-columns:1fr 1fr;align-items:center;padding:20px 34px;gap:28px}.phone{width:min(34vw,240px);aspect-ratio:1.8;border:10px solid #25363a;border-radius:28px;margin:auto;position:relative;background:#0c2024;transition:.08s}.phone:after{content:"";position:absolute;width:34px;height:5px;background:#446267;border-radius:5px;right:8px;top:50%;transform:translateY(-50%)}.meters{display:grid;gap:14px}.meter label{display:flex;justify-content:space-between;font-size:11px;color:#78918e}.bar{height:12px;background:#14272a;border-radius:10px;overflow:hidden}.bar i{display:block;height:100%;width:50%;background:#4ee6cd;transition:.08s}
+.actions{display:flex;gap:8px}.actions button{border:1px solid #315258;background:transparent;color:#b9d7d3;border-radius:999px;padding:10px 14px;font-weight:bold}.actions button.on{background:#4ee6cd;color:#06201b}
+.manual{display:grid;grid-template-columns:1fr 1fr;gap:8px}.manual button{border:0;background:#173338;color:#d9f2ee;border-radius:12px;padding:13px}
+</style>
+</head>
+<body>
+
+<header><b>TILT • LANDSCAPE</b><span id="sensorStatus">TOQUE EM ATIVAR</span></header>
+<main><div><div class="phone" id="phone"></div></div><div class="meters">
+<div class="meter"><label><span>ACELERAÇÃO</span><span id="thv">0</span></label><div class="bar"><i id="thbar"></i></div></div>
+<div class="meter"><label><span>ESTERÇO</span><span id="stv">0</span></label><div class="bar"><i id="stbar"></i></div></div>
+<div class="actions"><button id="enable" onclick="enableSensor()">ATIVAR SENSOR</button><button onclick="calibrate()">CALIBRAR</button></div>
+<div class="manual"><button onpointerdown="sendSigned(180,180)" onpointerup="sendSigned(0,0)">FRENTE</button><button onpointerdown="sendSigned(-160,-160)" onpointerup="sendSigned(0,0)">RÉ</button></div>
+</div></main>
+
+<script>
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+let lastA=999,lastB=999,lastT=0;
+function sendSigned(a,b,force=false){
+  a=Math.round(clamp(a,-255,255)); b=Math.round(clamp(b,-255,255));
+  const now=Date.now();
+  if(!force && now-lastT<55 && Math.abs(a-lastA)<3 && Math.abs(b-lastB)<3) return;
+  lastT=now; lastA=a; lastB=b;
+  const send=(m,v)=>fetch(`/joy?m=${m}&s=${Math.abs(v)}&d=${v>=0?'U':'D'}`).catch(()=>{});
+  send('A',a); send('B',b);
+}
+function stopAll(){ lastA=lastB=0; fetch('/PARAR').catch(()=>{}); }
+window.addEventListener('pagehide',stopAll);
+
+let sensorOn=false,zeroBeta=0,zeroGamma=0,lastBeta=0,lastGamma=0;
+const statusEl=document.getElementById('sensorStatus');
+async function enableSensor(){
+ try{
+  if(typeof DeviceOrientationEvent!=='undefined' && typeof DeviceOrientationEvent.requestPermission==='function'){
+    const p=await DeviceOrientationEvent.requestPermission(); if(p!=='granted')throw new Error('Permissão negada');
+  }
+  window.addEventListener('deviceorientation',orientation,true);sensorOn=true;
+  if(statusEl)statusEl.textContent='SENSOR ATIVO';
+  document.getElementById('enable')?.classList.add('on');
+ }catch(e){if(statusEl)statusEl.textContent='USE O CONTROLE MANUAL';}
+}
+function calibrate(){zeroBeta=lastBeta;zeroGamma=lastGamma;if(statusEl)statusEl.textContent='CALIBRADO';}
+
+function orientation(e){lastBeta=e.beta||0;lastGamma=e.gamma||0;
+ // Para celular deitado: beta (inclinação frente/trás) e gamma (esterço).
+ let t=clamp((lastBeta-zeroBeta)/28,-1,1),s=clamp((lastGamma-zeroGamma)/32,-1,1);
+ if(Math.abs(t)<.08)t=0;if(Math.abs(s)<.08)s=0;
+ let throttle=-t*220,steer=s*150;sendSigned(throttle+steer,throttle-steer);
+ phone.style.transform=`rotate(${s*14}deg) rotateX(${t*18}deg)`;
+ thv.textContent=Math.round(throttle);stv.textContent=Math.round(steer);thbar.style.width=(50+t*45)+'%';stbar.style.width=(50+s*45)+'%';
+}
+</script>
+</body>
+</html>

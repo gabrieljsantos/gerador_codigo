@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#000000">
+<title>CTRL.FORGE — Gerador de carrinho ESP32</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<a class="portal-back" href="../index.html" aria-label="Voltar ao Gerador de Código">← TODOS OS GERADORES</a>
+<header class="topbar">
+  <a class="brand" href="#">CTRL<span>.FORGE</span></a>
+  <nav><a href="#config">Configuração</a><a href="#controllers">Controles</a><a href="#export">Gerar</a></nav>
+</header>
+
+<section class="hero">
+  <div class="cosmic-particles" aria-hidden="true"></div>
+  <div class="hero-copy">
+    <p class="kicker">ESP32 / WIFI MOTOR CONTROLLER</p>
+    <h1>Seu carrinho.<br>Seu controle.<br><em>Seu firmware.</em></h1>
+    <p class="lead">Escolha a interface, organize os motores, defina a rede e gere o arquivo Arduino sem editar código na mão.</p>
+    <a href="#controllers" class="cta">Escolher controle</a>
+  </div>
+  <img class="hero-person" src="assets/gabriel-topo.png" alt="" onerror="this.style.opacity='.18'">
+  <div class="hero-watermark">ESP32</div>
+</section>
+
+<main>
+<section class="section" id="config">
+  <div class="section-title">
+    <span>01</span>
+    <div><p>CONFIGURAÇÃO</p><h2>Monte o seu hardware</h2></div>
+  </div>
+
+  <div class="config-lines">
+    <div class="config-row">
+      <div class="config-label"><b>Rede Wi‑Fi</b><small>O ESP32 cria o ponto de acesso.</small></div>
+      <label><span>SSID</span><input id="ssid" value="ROBO_ESP32" maxlength="31"></label>
+      <label><span>Senha</span><input id="password" value="12345678" maxlength="63"></label>
+    </div>
+
+    <div class="config-row">
+      <div class="config-label"><b>Função dos GPIOs</b><small>Associe cada saída à direção física do motor.</small></div>
+      <div id="pinMap" class="pin-map"></div>
+    </div>
+
+    <details class="advanced">
+      <summary>Alterar os números dos GPIOs</summary>
+      <div class="gpio-edit">
+        <label><span>GPIO 1</span><input class="gpio-input" data-slot="0" type="number" value="18"></label>
+        <label><span>GPIO 2</span><input class="gpio-input" data-slot="1" type="number" value="32"></label>
+        <label><span>GPIO 3</span><input class="gpio-input" data-slot="2" type="number" value="27"></label>
+        <label><span>GPIO 4</span><input class="gpio-input" data-slot="3" type="number" value="26"></label>
+      </div>
+    </details>
+  </div>
+</section>
+
+<section class="section controllers" id="controllers">
+  <div class="section-title">
+    <span>02</span>
+    <div><p>CATÁLOGO DE INTERFACES</p><h2>Escolha como dirigir</h2></div>
+  </div>
+  <p class="catalog-note">Passe para o lado e escolha um estilo. As miniaturas são representações simplificadas; a prévia abaixo mostra a interface real. Os modos de inclinação usam os sensores de orientação do celular.</p>
+
+  <div class="rail-wrap">
+    <button class="rail-arrow left" id="railLeft" aria-label="Voltar">‹</button>
+    <div class="controller-rail" id="controllerRail">
+      <button class="controller selected" data-layout="joystick">
+        <img src="assets/previews/joystick.svg" alt="Miniatura minimalista de Joystick duplo">
+        <span><b>Joystick duplo</b><small>Dois controles verticais independentes, um para cada motor.</small></span>
+      </button>
+      <button class="controller" data-layout="buttons">
+        <img src="assets/previews/buttons.svg" alt="Miniatura minimalista de Botões">
+        <span><b>Botões</b><small>Comandos diretos de frente e ré em duas velocidades.</small></span>
+      </button>
+      <button class="controller" data-layout="sliders">
+        <img src="assets/previews/sliders.svg" alt="Miniatura minimalista de Sliders">
+        <span><b>Sliders</b><small>Ajuste fino da direção e velocidade de cada motor.</small></span>
+      </button>
+      <button class="controller" data-layout="arcade">
+        <img src="assets/previews/arcade.svg" alt="Miniatura minimalista de Arcade">
+        <span><b>Arcade</b><small>Dois joysticks grandes com visual neon para uso em paisagem.</small></span>
+      </button>
+      <button class="controller" data-layout="tank">
+        <img src="assets/previews/tank.svg" alt="Miniatura minimalista de Tank Drive">
+        <span><b>Tank Drive</b><small>Controle de esteiras: cada lado do carrinho responde separadamente.</small></span>
+      </button>
+      <button class="controller" data-layout="minimal">
+        <img src="assets/previews/minimal.svg" alt="Miniatura minimalista de Minimal">
+        <span><b>Minimal</b><small>Interface limpa com direção e potência sem elementos extras.</small></span>
+      </button>
+      <button class="controller" data-layout="wheel">
+        <img src="assets/previews/wheel.svg" alt="Miniatura minimalista de Volante">
+        <span><b>Volante</b><small>Volante por toque para esterço, com pedais de aceleração e ré.</small></span>
+      </button>
+      <button class="controller" data-layout="touchpad">
+        <img src="assets/previews/touchpad.svg" alt="Miniatura minimalista de Touchpad">
+        <span><b>Touchpad</b><small>Uma área 2D mistura aceleração e esterço com um único dedo.</small></span>
+      </button>
+      <button class="controller" data-layout="dpad">
+        <img src="assets/previews/dpad.svg" alt="Miniatura minimalista de D‑Pad">
+        <span><b>D‑Pad</b><small>Setas clássicas para frente, ré e giro no próprio eixo.</small></span>
+      </button>
+      <button class="controller" data-layout="tilt_landscape">
+        <img src="assets/previews/tilt_landscape.svg" alt="Miniatura minimalista de Inclinação • Paisagem">
+        <span><b>Inclinação • Paisagem</b><small>Incline o celular deitado: frente/trás controla velocidade e giro controla direção.</small></span>
+      </button>
+      <button class="controller" data-layout="tilt_portrait">
+        <img src="assets/previews/tilt_portrait.svg" alt="Miniatura minimalista de Inclinação • Retrato">
+        <span><b>Inclinação • Retrato</b><small>Movimente o celular em pé para acelerar, dar ré e esterçar.</small></span>
+      </button>
+      <button class="controller" data-layout="tilt_tank">
+        <img src="assets/previews/tilt_tank.svg" alt="Miniatura minimalista de Inclinação • Tank">
+        <span><b>Inclinação • Tank</b><small>Mistura os eixos do celular para controlar os dois motores como esteiras.</small></span>
+      </button>
+      <button class="controller" data-layout="tilt_hybrid">
+        <img src="assets/previews/tilt_hybrid.svg" alt="Miniatura minimalista de Inclinação + Touch">
+        <span><b>Inclinação + Touch</b><small>Inclinação controla aceleração; o dedo controla apenas o esterço.</small></span>
+      </button>
+      <button class="controller" data-layout="gyro_wheel">
+        <img src="assets/previews/gyro_wheel.svg" alt="Miniatura minimalista de Giro • Volante">
+        <span><b>Giro • Volante</b><small>Gire fisicamente o celular como um volante e use botões para acelerar.</small></span>
+      </button>
+      <button class="controller" data-layout="split_pad">
+        <img src="assets/previews/split_pad.svg" alt="Miniatura minimalista de Split Pad">
+        <span><b>Split Pad</b><small>Duas grandes zonas de toque, coloridas e independentes para os motores.</small></span>
+      </button>
+    </div>
+    <button class="rail-arrow right" id="railRight" aria-label="Avançar">›</button>
+  </div>
+
+  <div class="preview-stage">
+    <div class="preview-caption"><span id="previewName">Joystick duplo</span><button id="openPreview">ABRIR TELA CHEIA ↗</button></div>
+    <iframe id="preview" title="Prévia do controle"></iframe>
+  </div>
+</section>
+
+<section class="section export" id="export">
+  <div class="section-title">
+    <span>03</span>
+    <div><p>EXPORTAÇÃO</p><h2>Firmware pronto para baixar</h2></div>
+  </div>
+
+  <div id="summary" class="summary-strip"></div>
+
+  <div class="download-zone">
+    <div class="floating-hearts" aria-hidden="true"></div>
+    <div class="download-copy">
+      <p class="kicker">PRONTO PARA O ARDUINO IDE</p>
+      <h3>Gere uma versão feita para este carrinho.</h3>
+      <div class="actions">
+        <button id="generate" class="download">GERAR .INO</button>
+        <button id="copyCode" class="copy">COPIAR CÓDIGO</button>
+      </div>
+      <p id="message" class="message"></p>
+    </div>
+
+    <img class="donation-person" src="assets/gabriel-doacao.png" alt="" onerror="this.style.opacity='.16'">
+
+    <div class="support">
+      <p class="kicker">APOIE O PROJETO VIA PIX</p>
+      <h3>Curtiu a ferramenta?<br>Me paga um café no PIX.</h3>
+      <p>Se isso economizou seu tempo, você pode ajudar a manter novas versões e novos controles aparecendo por aqui. Escaneie o QR Code abaixo para contribuir via <strong>PIX</strong>.</p>
+      <div class="pix-label">PIX • ESCANEIE O QR CODE</div>
+      <div class="qr-slot">
+        <img src="assets/qrcode.svg" alt="QR Code para doação" onerror="this.style.display='none';this.nextElementSibling.style.display='grid'">
+        <div class="qr-placeholder"><span>QR</span><small>assets/qrcode.svg</small></div>
+      </div>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer><span>CTRL.FORGE</span><small>Gerador de código • ESP32 com Wi‑Fi e controles</small></footer>
+<script src="app.js"></script>
+</body>
+</html>

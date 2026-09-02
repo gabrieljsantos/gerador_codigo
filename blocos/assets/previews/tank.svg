@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="338" viewBox="0 0 600 338">
+<rect width="600" height="338" fill="#101010"/>
+<rect x="18" y="18" width="564" height="302" rx="18" fill="none" stroke="#202020"/>
+<rect x="205" y="125" width="72" height="178" rx="28" fill="#292929"/><rect x="323" y="125" width="72" height="178" rx="28" fill="#292929"/><path d="M241 153l-18 24h36zM359 153l-18 24h36z" fill="#b5d769"/><path d="M241 276l18-24h-36zM359 276l18-24h-36z" fill="#b5d769"/>
+<text x="34" y="48" fill="#777" font-family="Arial,sans-serif" font-size="13" font-weight="700" letter-spacing="2">TANK DRIVE</text>
+<circle cx="552" cy="43" r="6" fill="#b5d769"/>
+</svg>

@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="338" viewBox="0 0 600 338">
+<rect width="600" height="338" fill="#101010"/>
+<rect x="18" y="18" width="564" height="302" rx="18" fill="none" stroke="#202020"/>
+<rect x="190" y="155" width="220" height="12" rx="6" fill="#292929"/><circle cx="270" cy="161" r="21" fill="#ff4f7b"/><rect x="190" y="232" width="220" height="12" rx="6" fill="#292929"/><circle cx="342" cy="238" r="21" fill="#ff4f7b"/>
+<text x="34" y="48" fill="#777" font-family="Arial,sans-serif" font-size="13" font-weight="700" letter-spacing="2">SLIDERS</text>
+<circle cx="552" cy="43" r="6" fill="#ff4f7b"/>
+</svg>

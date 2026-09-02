@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Minimal</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#101010;color:#eee;font-family:Arial,sans-serif;height:100vh;overflow:hidden}
+header{height:56px;padding:0 20px;display:flex;align-items:center;border-bottom:1px solid #242424;font-size:11px;letter-spacing:.18em;color:#888}
+main{height:calc(100vh - 56px);display:grid;grid-template-columns:1fr 1fr;gap:32px;padding:32px}.side{display:flex;flex-direction:column;justify-content:center;gap:18px}.side h3{margin:0;font-size:13px;color:#777}.dir{display:grid;grid-template-columns:1fr;gap:8px}.dir button{flex:1;border:1px solid #333;background:transparent;color:#aaa;border-radius:999px;padding:12px}.dir button.active{background:#f0f0f0;color:#111}input{width:100%;accent-color:#eee}.value{font-size:58px;font-weight:900;letter-spacing:-.08em}
+@media(max-width:680px){
+main{grid-template-columns:1fr;gap:18px;padding:18px;overflow:auto;height:calc(100vh - 56px)}
+.side{min-height:300px}
+.value{font-size:44px}
+}
+</style>
+</head>
+<body>
+
+<header>MINIMAL CONTROL</header><main>
+<div class="side" data-m="A"><h3>ESQUERDO</h3><div class="value">0</div><div class="dir"><button class="active" data-d="U">FRENTE</button><button data-d="D">RÉ</button></div><input type="range" min="0" max="255" value="0"></div>
+<div class="side" data-m="B"><h3>DIREITO</h3><div class="value">0</div><div class="dir"><button class="active" data-d="U">FRENTE</button><button data-d="D">RÉ</button></div><input type="range" min="0" max="255" value="0"></div></main>
+
+<script>
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+let lastA=999,lastB=999,lastT=0;
+function sendSigned(a,b,force=false){
+  a=Math.round(clamp(a,-255,255)); b=Math.round(clamp(b,-255,255));
+  const now=Date.now();
+  if(!force && now-lastT<55 && Math.abs(a-lastA)<3 && Math.abs(b-lastB)<3) return;
+  lastT=now; lastA=a; lastB=b;
+  const send=(m,v)=>fetch(`/joy?m=${m}&s=${Math.abs(v)}&d=${v>=0?'U':'D'}`).catch(()=>{});
+  send('A',a); send('B',b);
+}
+function stopAll(){ lastA=lastB=0; fetch('/PARAR').catch(()=>{}); }
+window.addEventListener('pagehide',stopAll);
+
+document.querySelectorAll('.side').forEach(s=>{let d='U',m=s.dataset.m,r=s.querySelector('input'),v=s.querySelector('.value');
+s.querySelectorAll('[data-d]').forEach(b=>b.onclick=()=>{d=b.dataset.d;s.querySelectorAll('[data-d]').forEach(x=>x.classList.remove('active'));b.classList.add('active')});
+r.oninput=()=>{v.textContent=r.value;let n=(d==='U'?1:-1)*Number(r.value);if(m==='A')sendSigned(n,lastB===999?0:lastB);else sendSigned(lastA===999?0:lastA,n)}})
+</script>
+</body>
+</html>

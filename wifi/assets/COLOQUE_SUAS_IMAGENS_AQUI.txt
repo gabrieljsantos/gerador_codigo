@@ -1,0 +1,4 @@
+Assets integrados ao projeto:
+- gabriel-topo.png: personagem dando joinha no hero.
+- gabriel-doacao.png: personagem fazendo coração na área do Pix.
+- qrcode.svg: QR Code da doação/Pix.

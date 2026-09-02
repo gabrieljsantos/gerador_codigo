@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Touchpad</title>
+<style>
+*{box-sizing:border-box;user-select:none}body{margin:0;background:#0c0b12;color:#fff;font-family:Arial,sans-serif;height:100vh;overflow:hidden;touch-action:none}
+header{height:58px;display:flex;align-items:center;justify-content:space-between;padding:0 20px;border-bottom:1px solid #282335}header b{font-size:12px;letter-spacing:.17em;color:#c184ff}
+.pad{margin:18px;height:calc(100vh - 94px);border:1px solid #342c43;border-radius:28px;position:relative;background:radial-gradient(circle at center,#20162d,#100d16)}
+.cross:before,.cross:after{content:"";position:absolute;background:#ffffff12}.cross:before{left:50%;top:0;bottom:0;width:1px}.cross:after{top:50%;left:0;right:0;height:1px}.dot{position:absolute;width:52px;height:52px;border-radius:50%;left:50%;top:50%;transform:translate(-50%,-50%);background:#c184ff;box-shadow:0 0 32px #c184ff77}.info{position:absolute;top:16px;left:18px;color:#8a7a98;font-size:11px;letter-spacing:.12em}
+</style>
+</head>
+<body>
+
+<header><b>ONE TOUCHPAD</b><span>frente/trás + esterço em uma área</span></header>
+<div class="pad" id="pad"><div class="cross"></div><div class="dot" id="dot"></div><div class="info">ARRASTE • SOLTE PARA PARAR</div></div>
+
+<script>
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+let lastA=999,lastB=999,lastT=0;
+function sendSigned(a,b,force=false){
+  a=Math.round(clamp(a,-255,255)); b=Math.round(clamp(b,-255,255));
+  const now=Date.now();
+  if(!force && now-lastT<55 && Math.abs(a-lastA)<3 && Math.abs(b-lastB)<3) return;
+  lastT=now; lastA=a; lastB=b;
+  const send=(m,v)=>fetch(`/joy?m=${m}&s=${Math.abs(v)}&d=${v>=0?'U':'D'}`).catch(()=>{});
+  send('A',a); send('B',b);
+}
+function stopAll(){ lastA=lastB=0; fetch('/PARAR').catch(()=>{}); }
+window.addEventListener('pagehide',stopAll);
+
+const pad=document.getElementById('pad'),dot=document.getElementById('dot');let active=false;
+function move(e){let r=pad.getBoundingClientRect(),x=clamp((e.clientX-r.left)/r.width*2-1,-1,1),y=clamp((e.clientY-r.top)/r.height*2-1,-1,1);
+dot.style.left=((x+1)*50)+'%';dot.style.top=((y+1)*50)+'%';let t=-y*220,s=x*150;sendSigned(t+s,t-s)}
+pad.onpointerdown=e=>{active=true;pad.setPointerCapture?.(e.pointerId);move(e)};pad.onpointermove=e=>{if(active)move(e)};pad.onpointerup=()=>{active=false;dot.style.left=dot.style.top='50%';sendSigned(0,0,true)}
+</script>
+</body>
+</html>
