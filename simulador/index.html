@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#070708">
+  <meta name="description" content="Simulador visual da analogia entre circuitos elétricos e um sistema hidráulico.">
+  <title>Simulador hidráulico — CTRL.FORGE</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="pipe-right.css">
+  <link rel="stylesheet" href="frame-adjustments.css">
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="../index.html">CTRL<span>.FORGE</span></a>
+    <a class="back" href="../index.html#geradores">← VOLTAR AOS GERADORES</a>
+  </header>
+  <main>
+    <section class="intro">
+      <p class="kicker">SIMULADOR • ANALOGIA HIDRÁULICA</p>
+      <h1>Tensão, corrente<br>e <em>resistência.</em></h1>
+      <p>Uma representação visual simples para relacionar grandezas elétricas ao comportamento da água.</p>
+    </section>
+    <section class="workspace" aria-label="Simulador hidráulico">
+      <div class="simulator-layout">
+        <aside class="height-control">
+          <div class="control-track height-track"><input id="tank-height" type="range" min="1" max="1100" value="370" aria-label="Altura da caixa-d’água"></div>
+          <div class="control-track thickness-track"><input id="pipe-thickness" type="range" min="1" max="1100" value="5" aria-label="Resistência do estrangulamento do duto"></div>
+        </aside>
+        <div class="scene" role="img" aria-label="Recipiente parcialmente cheio de água azul, conectado a um cano cheio que segue para a direita e depois desce">
+        <div class="pipe-outline">
+          <div class="pipe-water"></div>
+          <div class="pipe-down">
+              <div class="pipe-down-water"></div>
+              <div class="choke-zone" aria-hidden="true"><div class="choke"></div></div>
+            <div class="water-stream" aria-hidden="true"></div>
+            <div class="water-wheel" aria-label="Roda d’água girando com a queda da água">
+              <span></span><span></span><span></span><span></span>
+              <span></span><span></span><span></span><span></span>
+              <b></b>
+            </div>
+          </div>
+        </div>
+        <div class="tank">
+          <div class="water"></div>
+        </div>
+        <div class="ground"></div>
+        </div>
+      </div>
+    </section>
+  </main>
+</body>
+</html>

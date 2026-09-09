@@ -1,0 +1,22 @@
+.ground{display:none}
+.workspace{width:min(500px,100%)}
+.simulator-layout{grid-template-columns:minmax(0,360px) 140px}
+.simulator-layout,.scene{height:758px}
+.pipe-outline{bottom:calc(var(--tank-offset,111) * 1px + 288px)}
+.tank{bottom:calc(var(--tank-offset,111) * 1px + 238px)}
+.water-wheel{top:calc(100% + 33px)}
+.height-control{display:flex;gap:20px;padding:26px 20px}
+.control-track{position:relative;width:30px;height:100%}
+.control-track input{position:absolute;left:50%;top:50%;width:500px;height:6px;writing-mode:horizontal-tb;direction:ltr;transform:translate(-50%,-50%) rotate(-90deg);transform-origin:center;appearance:none}
+.height-track input{background:linear-gradient(90deg,var(--blue) var(--slider-progress,34%),#303036 var(--slider-progress,34%))}
+.thickness-track input{background:linear-gradient(90deg,var(--lime,#c8ff3d) var(--thickness-progress,44%),#303036 var(--thickness-progress,44%))}
+.thickness-track input::-webkit-slider-thumb{border-color:#9fce2c;box-shadow:0 0 0 4px #c8ff3d33}
+.thickness-track input::-moz-range-thumb{border-color:#9fce2c;box-shadow:0 0 0 4px #c8ff3d33}
+.choke-zone{position:absolute;z-index:3;left:0;top:auto;bottom:21px;width:52px;height:78px;display:flex;justify-content:center;background:#0d0d10;border:1px solid #35353a;border-radius:0}
+.choke{width:var(--choke-width,32px);height:100%;background:#16a7e0;border-radius:0;transition:width .08s linear}
+@media(max-width:720px){.simulator-layout{grid-template-columns:minmax(0,1fr) 110px}.height-control{padding-inline:14px;gap:14px}.control-track{width:26px}.control-track input{width:500px}}
+
+.water-stream{height:76px;background:transparent;border-radius:0;overflow:visible}
+.water-stream i,.water-stream i:first-child,.water-stream i:nth-child(2),.water-stream i:nth-child(3){position:absolute;left:9px!important;right:auto!important;top:0!important;bottom:auto!important;width:10px;height:15px;background:#16a7e0;border-radius:50% 50% 55% 55%;opacity:0;transform:translateX(var(--drop-x,0));animation:drop-fall 1.1s linear var(--drop-delay,0s) infinite}
+.water-wheel{animation-duration:var(--wheel-duration,4.2s)}
+@keyframes drop-fall{0%{opacity:0;transform:translate(var(--drop-x,0),0) scale(.75)}10%{opacity:1}42%{opacity:1;transform:translate(var(--drop-x,0),70px) scale(1)}62%{opacity:.9;transform:translate(var(--spread-x,0),112px) scale(.82)}85%{opacity:.6;transform:translate(calc(var(--spread-x,0) * 1.35),150px) scale(.62)}100%{opacity:0;transform:translate(calc(var(--spread-x,0) * 1.65),183px) scale(.42)}}
