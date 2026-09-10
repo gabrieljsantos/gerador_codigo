@@ -1,0 +1,6 @@
+.hearts{position:absolute;inset:0;overflow:hidden;pointer-events:none}
+.hearts span{opacity:.16;animation-duration:5s;animation-delay:calc(var(--heart-index,0) * -.31s)}
+.hearts span:nth-child(3n){animation-duration:6.8s}.hearts span:nth-child(4n){animation-duration:4.2s}.hearts span:nth-child(5n){opacity:.26}
+.hearts .glow{z-index:1;color:#ff3440;opacity:.72;text-shadow:0 0 7px #fff8,0 0 15px #ee1723,0 0 28px #ee1723;animation-name:float,heart-glow;animation-duration:5s,2.4s;animation-iteration-count:infinite;animation-timing-function:ease-in-out}
+@keyframes heart-glow{0%,100%{filter:brightness(.8);text-shadow:0 0 5px #fff5,0 0 12px #ee1723}50%{filter:brightness(1.65);text-shadow:0 0 10px #fff,0 0 22px #ff2633,0 0 38px #ee1723}}
+@media(max-width:800px){.hearts{display:block}.hearts span:nth-child(even){display:none}}
