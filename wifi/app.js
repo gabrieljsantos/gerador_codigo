@@ -18,6 +18,8 @@ const preview = document.getElementById("preview");
 const message = document.getElementById("message");
 const ssidEl = document.getElementById("ssid");
 const passEl = document.getElementById("password");
+const modeEl = document.getElementById("wifiMode");
+const deviceNameEl = document.getElementById("deviceName");
 
 function renderPinMap() {
   pinMap.innerHTML = "";
@@ -108,8 +110,10 @@ function safeFilePart(value) {
 function validate() {
   const ssid = ssidEl.value.trim();
   const pass = passEl.value;
+  const deviceName = deviceNameEl.value.trim();
   if (!ssid) return "Informe um nome para a rede Wi‑Fi.";
-  if (pass && pass.length < 8) return "A senha do ponto de acesso precisa ter pelo menos 8 caracteres, ou ficar vazia.";
+  if (pass && pass.length < 8) return "A senha Wi‑Fi precisa ter pelo menos 8 caracteres, ou ficar vazia.";
+  if (!/^[a-zA-Z0-9-]{1,32}$/.test(deviceName)) return "Use no nome do ESP apenas letras, números e hífens.";
   if (new Set(state.pins).size !== 4) return "Os quatro GPIOs precisam ser diferentes.";
   if (state.pins.some(p => !Number.isInteger(p) || p < 0)) return "Há um GPIO inválido.";
   if (new Set(state.assignments).size !== 4) return "Cada função de motor deve usar um GPIO diferente.";
@@ -123,10 +127,13 @@ function generateFirmware() {
   const p = mapping();
   const ssid = cppEscape(ssidEl.value.trim());
   const password = cppEscape(passEl.value);
+  const deviceName = cppEscape(deviceNameEl.value.trim().toLowerCase());
+  const stationMode = modeEl.value === "sta";
   const html = layouts[state.layout];
 
   return `#include <WiFi.h>
 #include <WebServer.h>
+#include <ESPmDNS.h>
 
 /*
   Gerado por: Gerador ESP32 • Carrinho Wi-Fi
@@ -137,6 +144,8 @@ function generateFirmware() {
 // ==================== REDE ====================
 const char* ssid = "${ssid}";
 const char* password = "${password}";
+const char* deviceName = "${deviceName}";
+const bool conectarRedeExistente = ${stationMode};
 
 // ==================== MOTORES ====================
 // Motor A = esquerdo | Motor B = direito
@@ -290,13 +299,23 @@ void setup() {
   ledcAttach(motorB_re, freq, resolucao);
   pararTudo();
 
-  if (strlen(password) == 0) WiFi.softAP(ssid);
-  else WiFi.softAP(ssid, password);
+  if (conectarRedeExistente) {
+    WiFi.mode(WIFI_STA); WiFi.setHostname(deviceName); WiFi.begin(ssid, password);
+    Serial.print("Conectando");
+    unsigned long inicio = millis();
+    while (WiFi.status() != WL_CONNECTED && millis() - inicio < 20000) { delay(350); Serial.print("."); }
+    if (WiFi.status() != WL_CONNECTED) { Serial.println("\nFalha ao conectar. Reinicie e confira SSID/senha."); }
+  } else {
+    WiFi.mode(WIFI_AP);
+    if (strlen(password) == 0) WiFi.softAP(ssid); else WiFi.softAP(ssid, password);
+  }
+  if (MDNS.begin(deviceName)) MDNS.addService("http", "tcp", 80);
 
   Serial.println();
   Serial.println("=== Carrinho ESP32 ===");
   Serial.print("SSID: "); Serial.println(ssid);
-  Serial.print("IP: "); Serial.println(WiFi.softAPIP());
+  Serial.print("IP: "); Serial.println(conectarRedeExistente ? WiFi.localIP() : WiFi.softAPIP());
+  Serial.print("Nome: http://"); Serial.print(deviceName); Serial.println(".local");
 
   server.on("/", handleRoot);
   server.on("/joy", handleJoystick);
@@ -343,7 +362,9 @@ function updateSummary() {
   document.getElementById("summary").innerHTML = `
     <div><span>INTERFACE</span><b>${names[state.layout] || state.layout}</b></div>
     <div><span>MOTOR ESQUERDO</span><b>Frente GPIO ${p.motorA_frente} · Ré GPIO ${p.motorA_re}</b></div>
-    <div><span>MOTOR DIREITO</span><b>Frente GPIO ${p.motorB_frente} · Ré GPIO ${p.motorB_re}</b></div>`;
+    <div><span>MOTOR DIREITO</span><b>Frente GPIO ${p.motorB_frente} · Ré GPIO ${p.motorB_re}</b></div>
+    <div><span>ENDEREÇO DO CARRINHO</span><b>http://${deviceNameEl.value.trim().toLowerCase() || "carrinho"}.local</b></div>
+    ${modeEl.value === "ap" ? `<div><span>IP DO PONTO DE ACESSO</span><b>http://192.168.4.1</b></div>` : `<div><span>IP NA REDE EXISTENTE</span><b>Exibido no Monitor Serial</b></div>`}`;
 }
 
 function downloadText(filename, text) {
@@ -389,6 +410,10 @@ document.getElementById("openPreview").addEventListener("click", () => {
 });
 
 ssidEl.addEventListener("input", updateSummary);
+modeEl.addEventListener("change", updateSummary);
+deviceNameEl.addEventListener("input", updateSummary);
+document.querySelectorAll("[data-network-mode]").forEach(button=>button.addEventListener("click",()=>{modeEl.value=button.dataset.networkMode;document.querySelectorAll("[data-network-mode]").forEach(x=>x.classList.toggle("active",x===button));document.getElementById("ssidLabel").textContent=modeEl.value==="ap"?"Nome da rede criada":"Nome da rede existente";document.getElementById("passwordLabel").textContent=modeEl.value==="ap"?"Senha da rede criada":"Senha da rede existente";updateSummary()}));
+document.getElementById("resetHardware").addEventListener("click",()=>{state.pins=[18,32,27,26];state.assignments=["motorA_frente","motorA_re","motorB_frente","motorB_re"];document.querySelectorAll(".gpio-input").forEach((x,i)=>x.value=state.pins[i]);renderPinMap();updateSummary()});
 passEl.addEventListener("input", updateSummary);
 
 

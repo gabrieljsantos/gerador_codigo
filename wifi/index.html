@@ -6,6 +6,7 @@
 <meta name="theme-color" content="#000000">
 <title>CTRL.FORGE — Gerador de carrinho ESP32</title>
 <link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="../network-mode.css">
 </head>
 <body>
 <a class="portal-back" href="../index.html" aria-label="Voltar ao Gerador de Código">← TODOS OS GERADORES</a>
@@ -35,14 +36,17 @@
 
   <div class="config-lines">
     <div class="config-row">
-      <div class="config-label"><b>Rede Wi‑Fi</b><small>O ESP32 cria o ponto de acesso.</small></div>
-      <label><span>SSID</span><input id="ssid" value="ROBO_ESP32" maxlength="31"></label>
-      <label><span>Senha</span><input id="password" value="12345678" maxlength="63"></label>
+      <div class="config-label"><b>Rede Wi‑Fi</b><small>Crie uma rede ou conecte ao seu roteador.</small></div>
+      <div><span>Modo</span><div class="network-mode"><button type="button" class="active" data-network-mode="ap">PONTO DE ACESSO</button><button type="button" data-network-mode="sta">REDE EXISTENTE</button></div><input id="wifiMode" type="hidden" value="ap"></div>
+      <label><span id="ssidLabel">Nome da rede criada</span><input id="ssid" value="ROBO_ESP32" maxlength="31"></label>
+      <label><span id="passwordLabel">Senha da rede criada</span><input id="password" type="password" value="12345678" maxlength="63"></label>
+      <label><span>Nome deste ESP</span><input id="deviceName" value="carrinho-01" maxlength="32"></label>
     </div>
 
     <div class="config-row">
       <div class="config-label"><b>Função dos GPIOs</b><small>Associe cada saída à direção física do motor.</small></div>
       <div id="pinMap" class="pin-map"></div>
+      <button type="button" id="resetHardware">RESTAURAR PADRÃO</button>
     </div>
 
     <details class="advanced">
