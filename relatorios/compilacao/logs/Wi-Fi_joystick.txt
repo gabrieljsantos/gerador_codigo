@@ -1,0 +1,10 @@
+cc1plus: fatal error: /run/media/heisenberg0x01/SSD Kingston/PROJECTS/PET/FORMACAO/gerador_codigo/relatorios/compilacao/build/esp32/sketch/joystick.ino.cpp.merged: No such file or directory
+compilation terminated.
+
+Used library Version Path
+WiFi         3.3.12  /home/heisenberg0x01/.arduino15/packages/esp32/hardware/esp32/3.3.12/libraries/WiFi
+Networking   3.3.12  /home/heisenberg0x01/.arduino15/packages/esp32/hardware/esp32/3.3.12/libraries/Network
+
+Used platform Version Path
+esp32:esp32   3.3.12  /home/heisenberg0x01/.arduino15/packages/esp32/hardware/esp32/3.3.12
+Error during build: exit status 1

@@ -1,0 +1,246 @@
+{
+  "metadata": {
+    "generated_at": "2026-10-31T13:51:58-03:00",
+    "fqbn": "esp32:esp32:esp32",
+    "compiler": "/home/heisenberg0x01/bin/arduino-cli",
+    "esp32_core": "3.3.12",
+    "generation": "generateFirmware() real da página, salvo como .ino exportado",
+    "node": "/usr/bin/node",
+    "excluded": "blocos_wifi",
+    "compiler_version": "arduino-cli  Version: 1.5.1 Commit: 01f3d4f2b Date: 2026-06-05T10:22:17Z"
+  },
+  "results": [
+    {
+      "generator": "Wi-Fi",
+      "case": "joystick",
+      "sketch": "wifi/joystick/joystick.ino",
+      "status": "falhou",
+      "exit_code": 1,
+      "build_log": "logs/Wi-Fi_joystick.txt",
+      "errors": [
+        "Networking   3.3.12  /home/heisenberg0x01/.arduino15/packages/esp32/hardware/esp32/3.3.12/libraries/Network",
+        "WebServer    3.3.12  /home/heisenberg0x01/.arduino15/packages/esp32/hardware/esp32/3.3.12/libraries/WebServer",
+        "FS           3.3.12  /home/heisenberg0x01/.arduino15/packages/esp32/hardware/esp32/3.3.12/libraries/FS",
+        "ESPmDNS      3.3.12  /home/heisenberg0x01/.arduino15/packages/esp32/hardware/esp32/3.3.12/libraries/ESPmDNS",
+        "Hash         3.3.12  /home/heisenberg0x01/.arduino15/packages/esp32/hardware/esp32/3.3.12/libraries/Hash",
+        "Used platform Version Path",
+        "esp32:esp32   3.3.12  /home/heisenberg0x01/.arduino15/packages/esp32/hardware/esp32/3.3.12",
+        "Error during build: exit status 2"
+      ]
+    },
+    {
+      "generator": "Wi-Fi",
+      "case": "buttons",
+      "sketch": "wifi/buttons/buttons.ino",
+      "status": "falhou",
+      "exit_code": 1,
+      "build_log": "logs/Wi-Fi_buttons.txt",
+      "errors": [
+        "/home/heisenberg0x01/.arduino15/packages/esp32/tools/esp-x32/2601/bin/../lib/gcc/xtensa-esp-elf/14.2.0/../../../../xtensa-esp-elf/bin/ar: unable to copy file '/run/media/heisenberg0x01/SSD Kingston/PROJECTS/PET/FORMACAO/gerador_codigo/relatorios/compilacao/build/esp32/core/core.a'; reason: No such file or directory"
+      ]
+    },
+    {
+      "generator": "Wi-Fi",
+      "case": "sliders",
+      "sketch": "wifi/sliders/sliders.ino",
+      "status": "falhou",
+      "exit_code": 1,
+      "build_log": "logs/Wi-Fi_sliders.txt",
+      "errors": [
+        "Used platform Version Path",
+        "esp32:esp32   3.3.12  /home/heisenberg0x01/.arduino15/packages/esp32/hardware/esp32/3.3.12",
+        "Error during build: cleaning build path: unlinkat /run/media/heisenberg0x01/SSD Kingston/PROJECTS/PET/FORMACAO/gerador_codigo/relatorios/compilacao/build/esp32/core: directory not empty"
+      ]
+    },
+    {
+      "generator": "Wi-Fi",
+      "case": "arcade",
+      "sketch": "wifi/arcade/arcade.ino",
+      "status": "falhou",
+      "exit_code": 1,
+      "build_log": "logs/Wi-Fi_arcade.txt",
+      "errors": [
+        "collect2: error: ld returned 1 exit status"
+      ]
+    },
+    {
+      "generator": "Wi-Fi",
+      "case": "tank",
+      "sketch": "wifi/tank/tank.ino",
+      "status": "falhou",
+      "exit_code": 1,
+      "build_log": "logs/Wi-Fi_tank.txt",
+      "errors": [
+        "Networking   3.3.12  /home/heisenberg0x01/.arduino15/packages/esp32/hardware/esp32/3.3.12/libraries/Network",
+        "WebServer    3.3.12  /home/heisenberg0x01/.arduino15/packages/esp32/hardware/esp32/3.3.12/libraries/WebServer",
+        "FS           3.3.12  /home/heisenberg0x01/.arduino15/packages/esp32/hardware/esp32/3.3.12/libraries/FS",
+        "ESPmDNS      3.3.12  /home/heisenberg0x01/.arduino15/packages/esp32/hardware/esp32/3.3.12/libraries/ESPmDNS",
+        "Hash         3.3.12  /home/heisenberg0x01/.arduino15/packages/esp32/hardware/esp32/3.3.12/libraries/Hash",
+        "Used platform Version Path",
+        "esp32:esp32   3.3.12  /home/heisenberg0x01/.arduino15/packages/esp32/hardware/esp32/3.3.12",
+        "Error during build: exit status 1"
+      ]
+    },
+    {
+      "generator": "Wi-Fi",
+      "case": "minimal",
+      "sketch": "wifi/minimal/minimal.ino",
+      "status": "falhou",
+      "exit_code": 1,
+      "build_log": "logs/Wi-Fi_minimal.txt",
+      "errors": [
+        "/home/heisenberg0x01/.arduino15/packages/esp32/tools/esp-x32/2601/bin/../lib/gcc/xtensa-esp-elf/14.2.0/../../../../xtensa-esp-elf/bin/ar: unable to copy file '/run/media/heisenberg0x01/SSD Kingston/PROJECTS/PET/FORMACAO/gerador_codigo/relatorios/compilacao/build/esp32/core/core.a'; reason: No such file or directory"
+      ]
+    },
+    {
+      "generator": "Wi-Fi",
+      "case": "wheel",
+      "sketch": "wifi/wheel/wheel.ino",
+      "status": "falhou",
+      "exit_code": 1,
+      "build_log": "logs/Wi-Fi_wheel.txt",
+      "errors": [
+        "cc1plus: fatal error: /run/media/heisenberg0x01/SSD Kingston/PROJECTS/PET/FORMACAO/gerador_codigo/relatorios/compilacao/build/esp32/sketch/wheel.ino.cpp.merged: No such file or directory"
+      ]
+    },
+    {
+      "generator": "Wi-Fi",
+      "case": "touchpad",
+      "sketch": "wifi/touchpad/touchpad.ino",
+      "status": "falhou",
+      "exit_code": 1,
+      "build_log": "logs/Wi-Fi_touchpad.txt",
+      "errors": [
+        "xtensa-esp-elf-g++: fatal error: cannot specify '-o' with '-c', '-S' or '-E' with multiple files"
+      ]
+    },
+    {
+      "generator": "Wi-Fi",
+      "case": "dpad",
+      "sketch": "wifi/dpad/dpad.ino",
+      "status": "falhou",
+      "exit_code": 1,
+      "build_log": "logs/Wi-Fi_dpad.txt",
+      "errors": [
+        "cc1plus: fatal error: /run/media/heisenberg0x01/SSD Kingston/PROJECTS/PET/FORMACAO/gerador_codigo/relatorios/compilacao/build/esp32/sketch/dpad.ino.cpp.merged: No such file or directory"
+      ]
+    },
+    {
+      "generator": "Wi-Fi",
+      "case": "tilt_landscape",
+      "sketch": "wifi/tilt_landscape/tilt_landscape.ino",
+      "status": "falhou",
+      "exit_code": 1,
+      "build_log": "logs/Wi-Fi_tilt_landscape.txt",
+      "errors": [
+        "cc1plus: fatal error: /run/media/heisenberg0x01/SSD Kingston/PROJECTS/PET/FORMACAO/gerador_codigo/relatorios/compilacao/build/esp32/sketch/tilt_landscape.ino.cpp.merged: No such file or directory"
+      ]
+    },
+    {
+      "generator": "Wi-Fi",
+      "case": "tilt_portrait",
+      "sketch": "wifi/tilt_portrait/tilt_portrait.ino",
+      "status": "falhou",
+      "exit_code": 1,
+      "build_log": "logs/Wi-Fi_tilt_portrait.txt",
+      "errors": [
+        "xtensa-esp-elf-g++: fatal error: cannot specify '-o' with '-c', '-S' or '-E' with multiple files"
+      ]
+    },
+    {
+      "generator": "Wi-Fi",
+      "case": "tilt_tank",
+      "sketch": "wifi/tilt_tank/tilt_tank.ino",
+      "status": "falhou",
+      "exit_code": 1,
+      "build_log": "logs/Wi-Fi_tilt_tank.txt",
+      "errors": [
+        "xtensa-esp-elf-g++: fatal error: cannot specify '-o' with '-c', '-S' or '-E' with multiple files"
+      ]
+    },
+    {
+      "generator": "Wi-Fi",
+      "case": "tilt_hybrid",
+      "sketch": "wifi/tilt_hybrid/tilt_hybrid.ino",
+      "status": "falhou",
+      "exit_code": 1,
+      "build_log": "logs/Wi-Fi_tilt_hybrid.txt",
+      "errors": [
+        "xtensa-esp-elf-g++: fatal error: cannot specify '-o' with '-c', '-S' or '-E' with multiple files"
+      ]
+    },
+    {
+      "generator": "Wi-Fi",
+      "case": "gyro_wheel",
+      "sketch": "wifi/gyro_wheel/gyro_wheel.ino",
+      "status": "falhou",
+      "exit_code": 1,
+      "build_log": "logs/Wi-Fi_gyro_wheel.txt",
+      "errors": [
+        "xtensa-esp-elf-g++: fatal error: cannot specify '-o' with '-c', '-S' or '-E' with multiple files"
+      ]
+    },
+    {
+      "generator": "Wi-Fi",
+      "case": "split_pad",
+      "sketch": "wifi/split_pad/split_pad.ino",
+      "status": "falhou",
+      "exit_code": 1,
+      "build_log": "logs/Wi-Fi_split_pad.txt",
+      "errors": [
+        "xtensa-esp-elf-g++: fatal error: cannot specify '-o' with '-c', '-S' or '-E' with multiple files"
+      ]
+    },
+    {
+      "generator": "Blocos tradicional",
+      "case": "vazio",
+      "sketch": "blocos/vazio/vazio.ino",
+      "status": "falhou",
+      "exit_code": 1,
+      "build_log": "logs/Blocos_tradicional_vazio.txt",
+      "errors": [
+        "xtensa-esp-elf-g++: fatal error: cannot specify '-o' with '-c', '-S' or '-E' with multiple files"
+      ]
+    },
+    {
+      "generator": "Blocos tradicional",
+      "case": "motores",
+      "sketch": "blocos/motores/motores.ino",
+      "status": "falhou",
+      "exit_code": 1,
+      "build_log": "logs/Blocos_tradicional_motores.txt",
+      "errors": [
+        "xtensa-esp-elf-g++: fatal error: cannot specify '-o' with '-c', '-S' or '-E' with multiple files"
+      ]
+    },
+    {
+      "generator": "Blocos tradicional",
+      "case": "gpio_pulso",
+      "sketch": "blocos/gpio_pulso/gpio_pulso.ino",
+      "status": "compilou",
+      "exit_code": 0,
+      "build_log": "logs/Blocos_tradicional_gpio_pulso.txt",
+      "errors": [
+        "Sketch uses 967863 bytes (73%) of program storage space. Maximum is 1310720 bytes.",
+        "Global variables use 49628 bytes (15%) of dynamic memory, leaving 278052 bytes for local variables. Maximum is 327680 bytes."
+      ]
+    },
+    {
+      "generator": "Blocos tradicional",
+      "case": "controle_variaveis",
+      "sketch": "blocos/controle_variaveis/controle_variaveis.ino",
+      "status": "compilou",
+      "exit_code": 0,
+      "build_log": "logs/Blocos_tradicional_controle_variaveis.txt",
+      "errors": [
+        "Sketch uses 967747 bytes (73%) of program storage space. Maximum is 1310720 bytes.",
+        "Global variables use 49628 bytes (15%) of dynamic memory, leaving 278052 bytes for local variables. Maximum is 327680 bytes."
+      ]
+    }
+  ],
+  "counts": {
+    "compilou": 2,
+    "falhou": 17,
+    "não executado": 0
+  }
+}

@@ -29,18 +29,23 @@
 
 <main>
 <section class="section" id="config">
-  <div class="section-title">
+  <div class="section-title config-section-title">
     <span>01</span>
     <div><p>CONFIGURAÇÃO</p><h2>Monte o seu hardware</h2></div>
+    <div class="config-file-actions">
+      <button type="button" id="loadConfig" class="copy">CARREGAR CONFIGURAÇÃO</button>
+      <input type="file" id="configFile" accept="application/json,.json" hidden>
+      <p id="configMessage" role="status" aria-live="polite"></p>
+    </div>
   </div>
 
   <div class="config-lines">
     <div class="config-row">
       <div class="config-label"><b>Rede Wi‑Fi</b><small>Crie uma rede ou conecte ao seu roteador.</small></div>
       <div><span>Modo</span><div class="network-mode"><button type="button" class="active" data-network-mode="ap">PONTO DE ACESSO</button><button type="button" data-network-mode="sta">REDE EXISTENTE</button></div><input id="wifiMode" type="hidden" value="ap"></div>
-      <label><span id="ssidLabel">Nome da rede criada</span><input id="ssid" value="ROBO_ESP32" maxlength="31"></label>
-      <label><span id="passwordLabel">Senha da rede criada</span><input id="password" type="password" value="12345678" maxlength="63"></label>
-      <label><span>Nome deste ESP</span><input id="deviceName" value="carrinho-01" maxlength="32"></label>
+      <label><span><strong id="ssidLabel">Nome do Wi‑Fi que será criado (SSID)</strong></span><input id="ssid" value="ROBO_ESP32" maxlength="31"></label>
+      <label><span><strong id="passwordLabel">Senha do Wi‑Fi que será criado</strong></span><input id="password" type="password" value="12345678" maxlength="63"></label>
+      <label><span><strong>Nome do ESP32 / carrinho</strong></span><input id="deviceName" value="carrinho-01" maxlength="32"></label>
     </div>
 
     <div class="config-row">
@@ -144,19 +149,31 @@
 <section class="section export" id="export">
   <div class="section-title">
     <span>03</span>
-    <div><p>EXPORTAÇÃO</p><h2>Firmware pronto para baixar</h2></div>
+    <div><p>EXPORTAÇÃO</p></div>
   </div>
-
-  <div id="summary" class="summary-strip"></div>
 
   <div class="download-zone">
     <div class="floating-hearts" aria-hidden="true"></div>
     <div class="download-copy">
-      <p class="kicker">PRONTO PARA O ARDUINO IDE</p>
-      <h3>Gere uma versão feita para este carrinho.</h3>
+      <div id="summary" class="summary-strip" aria-live="polite">
+        <div class="connection-step connection-wifi">
+          <div class="step-copy credential-copy"><span>WI‑FI DO ESP32</span><b data-wifi-name>—</b><span>SENHA</span><b data-wifi-password>—</b></div>
+          <div class="connection-qr"><canvas data-wifi-qr aria-label="QR Code para conectar à rede Wi‑Fi"></canvas></div>
+        </div>
+        <div class="connection-step connection-site">
+          <div class="step-copy"><span>SITE 1 • NOME DO ESP32</span><b data-site-name>—</b></div>
+          <div class="connection-qr"><canvas data-site-qr aria-label="QR Code para abrir o endereço local do carrinho"></canvas></div>
+        </div>
+        <div class="connection-step connection-ip" data-ap-only>
+          <div class="step-copy"><span>SITE 2 • ENDEREÇO PADRÃO</span><b>http://192.168.4.1</b></div>
+          <div class="connection-qr"><canvas data-ip-qr aria-label="QR Code para abrir 192.168.4.1"></canvas></div>
+        </div>
+      </div>
       <div class="actions">
         <button id="generate" class="download">GERAR .INO</button>
         <button id="copyCode" class="copy">COPIAR CÓDIGO</button>
+        <button id="downloadCard" class="copy" type="button">BAIXAR CARTÃO PNG</button>
+        <button id="downloadConfig" class="copy" type="button">BAIXAR CONFIGURAÇÃO</button>
       </div>
       <p id="message" class="message"></p>
     </div>
@@ -178,6 +195,7 @@
 </main>
 
 <footer><span>CTRL.FORGE</span><small>Gerador de código • ESP32 com Wi‑Fi e controles</small></footer>
+<script src="qrcode.js"></script>
 <script src="app.js"></script>
 </body>
 </html>

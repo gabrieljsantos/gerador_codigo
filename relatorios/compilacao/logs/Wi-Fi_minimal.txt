@@ -1,0 +1,16 @@
+/home/heisenberg0x01/.arduino15/packages/esp32/tools/esp-x32/2601/bin/../lib/gcc/xtensa-esp-elf/14.2.0/../../../../xtensa-esp-elf/bin/ar: unable to copy file '/run/media/heisenberg0x01/SSD Kingston/PROJECTS/PET/FORMACAO/gerador_codigo/relatorios/compilacao/build/esp32/core/core.a'; reason: No such file or directory
+Multiple libraries were found for "WiFi.h"
+  Used: /home/heisenberg0x01/.arduino15/packages/esp32/hardware/esp32/3.3.12/libraries/WiFi
+  Not used: /home/heisenberg0x01/Arduino/libraries/WiFiEspAT
+
+Used library Version Path
+WiFi         3.3.12  /home/heisenberg0x01/.arduino15/packages/esp32/hardware/esp32/3.3.12/libraries/WiFi
+Networking   3.3.12  /home/heisenberg0x01/.arduino15/packages/esp32/hardware/esp32/3.3.12/libraries/Network
+WebServer    3.3.12  /home/heisenberg0x01/.arduino15/packages/esp32/hardware/esp32/3.3.12/libraries/WebServer
+FS           3.3.12  /home/heisenberg0x01/.arduino15/packages/esp32/hardware/esp32/3.3.12/libraries/FS
+ESPmDNS      3.3.12  /home/heisenberg0x01/.arduino15/packages/esp32/hardware/esp32/3.3.12/libraries/ESPmDNS
+Hash         3.3.12  /home/heisenberg0x01/.arduino15/packages/esp32/hardware/esp32/3.3.12/libraries/Hash
+
+Used platform Version Path
+esp32:esp32   3.3.12  /home/heisenberg0x01/.arduino15/packages/esp32/hardware/esp32/3.3.12
+Error during build: exit status 1

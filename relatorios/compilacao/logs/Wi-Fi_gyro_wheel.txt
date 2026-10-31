@@ -1,0 +1,9 @@
+xtensa-esp-elf-g++: fatal error: cannot specify '-o' with '-c', '-S' or '-E' with multiple files
+compilation terminated.
+
+Used library Version Path
+WiFi         3.3.12  /home/heisenberg0x01/.arduino15/packages/esp32/hardware/esp32/3.3.12/libraries/WiFi
+
+Used platform Version Path
+esp32:esp32   3.3.12  /home/heisenberg0x01/.arduino15/packages/esp32/hardware/esp32/3.3.12
+Error during build: exit status 1

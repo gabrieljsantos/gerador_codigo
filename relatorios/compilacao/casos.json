@@ -1,0 +1,97 @@
+[
+  {
+    "generator": "Wi-Fi",
+    "case": "joystick",
+    "sketch": "wifi/joystick/joystick.ino"
+  },
+  {
+    "generator": "Wi-Fi",
+    "case": "buttons",
+    "sketch": "wifi/buttons/buttons.ino"
+  },
+  {
+    "generator": "Wi-Fi",
+    "case": "sliders",
+    "sketch": "wifi/sliders/sliders.ino"
+  },
+  {
+    "generator": "Wi-Fi",
+    "case": "arcade",
+    "sketch": "wifi/arcade/arcade.ino"
+  },
+  {
+    "generator": "Wi-Fi",
+    "case": "tank",
+    "sketch": "wifi/tank/tank.ino"
+  },
+  {
+    "generator": "Wi-Fi",
+    "case": "minimal",
+    "sketch": "wifi/minimal/minimal.ino"
+  },
+  {
+    "generator": "Wi-Fi",
+    "case": "wheel",
+    "sketch": "wifi/wheel/wheel.ino"
+  },
+  {
+    "generator": "Wi-Fi",
+    "case": "touchpad",
+    "sketch": "wifi/touchpad/touchpad.ino"
+  },
+  {
+    "generator": "Wi-Fi",
+    "case": "dpad",
+    "sketch": "wifi/dpad/dpad.ino"
+  },
+  {
+    "generator": "Wi-Fi",
+    "case": "tilt_landscape",
+    "sketch": "wifi/tilt_landscape/tilt_landscape.ino"
+  },
+  {
+    "generator": "Wi-Fi",
+    "case": "tilt_portrait",
+    "sketch": "wifi/tilt_portrait/tilt_portrait.ino"
+  },
+  {
+    "generator": "Wi-Fi",
+    "case": "tilt_tank",
+    "sketch": "wifi/tilt_tank/tilt_tank.ino"
+  },
+  {
+    "generator": "Wi-Fi",
+    "case": "tilt_hybrid",
+    "sketch": "wifi/tilt_hybrid/tilt_hybrid.ino"
+  },
+  {
+    "generator": "Wi-Fi",
+    "case": "gyro_wheel",
+    "sketch": "wifi/gyro_wheel/gyro_wheel.ino"
+  },
+  {
+    "generator": "Wi-Fi",
+    "case": "split_pad",
+    "sketch": "wifi/split_pad/split_pad.ino"
+  },
+  {
+    "generator": "Blocos tradicional",
+    "case": "vazio",
+    "sketch": "blocos/vazio/vazio.ino"
+  },
+  {
+    "generator": "Blocos tradicional",
+    "case": "motores",
+    "sketch": "blocos/motores/motores.ino"
+  },
+  {
+    "generator": "Blocos tradicional",
+    "case": "gpio_pulso",
+    "sketch": "blocos/gpio_pulso/gpio_pulso.ino"
+  },
+  {
+    "generator": "Blocos tradicional",
+    "case": "controle_variaveis",
+    "sketch": "blocos/controle_variaveis/controle_variaveis.ino"
+  }
+]

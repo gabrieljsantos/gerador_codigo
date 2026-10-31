@@ -304,7 +304,7 @@ void setup() {
     Serial.print("Conectando");
     unsigned long inicio = millis();
     while (WiFi.status() != WL_CONNECTED && millis() - inicio < 20000) { delay(350); Serial.print("."); }
-    if (WiFi.status() != WL_CONNECTED) { Serial.println("\nFalha ao conectar. Reinicie e confira SSID/senha."); }
+    if (WiFi.status() != WL_CONNECTED) { Serial.println("\\nFalha ao conectar. Reinicie e confira SSID/senha."); }
   } else {
     WiFi.mode(WIFI_AP);
     if (strlen(password) == 0) WiFi.softAP(ssid); else WiFi.softAP(ssid, password);
@@ -341,34 +341,140 @@ void loop() {
 }
 
 function updateSummary() {
-  const p = mapping();
-  const names = {
-    "joystick":"Joystick duplo",
-    "buttons":"Botões",
-    "sliders":"Sliders",
-    "arcade":"Arcade",
-    "tank":"Tank Drive",
-    "minimal":"Minimal",
-    "wheel":"Volante",
-    "touchpad":"Touchpad",
-    "dpad":"D‑Pad",
-    "tilt_landscape":"Inclinação • Paisagem",
-    "tilt_portrait":"Inclinação • Retrato",
-    "tilt_tank":"Inclinação • Tank",
-    "tilt_hybrid":"Inclinação + Touch",
-    "gyro_wheel":"Giro • Volante",
-    "split_pad":"Split Pad"
-  };
-  document.getElementById("summary").innerHTML = `
-    <div><span>INTERFACE</span><b>${names[state.layout] || state.layout}</b></div>
-    <div><span>MOTOR ESQUERDO</span><b>Frente GPIO ${p.motorA_frente} · Ré GPIO ${p.motorA_re}</b></div>
-    <div><span>MOTOR DIREITO</span><b>Frente GPIO ${p.motorB_frente} · Ré GPIO ${p.motorB_re}</b></div>
-    <div><span>ENDEREÇO DO CARRINHO</span><b>http://${deviceNameEl.value.trim().toLowerCase() || "carrinho"}.local</b></div>
-    ${modeEl.value === "ap" ? `<div><span>IP DO PONTO DE ACESSO</span><b>http://192.168.4.1</b></div>` : `<div><span>IP NA REDE EXISTENTE</span><b>Exibido no Monitor Serial</b></div>`}`;
+  const escapeHtml = value => String(value).replace(/[&<>"']/g, char => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[char]));
+  const ssid = ssidEl.value.trim() || "—";
+  const password = passEl.value;
+  const device = deviceNameEl.value.trim().toLowerCase() || "carrinho";
+  const localUrl = `http://${device}.local`;
+  const summary = document.getElementById("summary");
+  summary.querySelector("[data-wifi-name]").textContent = ssid;
+  summary.querySelector("[data-wifi-password]").textContent = password || "Sem senha";
+  summary.querySelector("[data-site-name]").textContent = localUrl;
+  summary.querySelector("[data-ap-only]").hidden = modeEl.value !== "ap";
+  const wifiPayload = password
+    ? `WIFI:T:WPA;S:${wifiQrEscape(ssid)};P:${wifiQrEscape(password)};;`
+    : `WIFI:T:nopass;S:${wifiQrEscape(ssid)};;`;
+  drawQr(summary.querySelector("[data-wifi-qr]"), wifiPayload);
+  drawQr(summary.querySelector("[data-site-qr]"), localUrl);
+  if (modeEl.value === "ap") drawQr(summary.querySelector("[data-ip-qr]"), "http://192.168.4.1");
 }
 
-function downloadText(filename, text) {
-  const blob = new Blob([text], {type:"text/plain;charset=utf-8"});
+function wifiQrEscape(value) {
+  return String(value).replace(/[\\;,:\"]/g, char => `\\${char}`);
+}
+
+function drawQr(canvas, value) {
+  try {
+    QRCodeLocal.draw(canvas, value, 128);
+    canvas.title = value;
+    canvas.parentElement.classList.remove("qr-error");
+    canvas.parentElement.removeAttribute("title");
+  } catch (error) {
+    canvas.width = canvas.height = 0;
+    canvas.parentElement.classList.add("qr-error");
+    canvas.parentElement.title = error.message;
+  }
+}
+
+function updateNetworkLabels() {
+  const accessPoint = modeEl.value === "ap";
+  document.getElementById("ssidLabel").textContent = accessPoint
+    ? "Nome do Wi‑Fi que será criado (SSID)"
+    : "Nome do Wi‑Fi existente ao qual o ESP32 vai se conectar (SSID)";
+  document.getElementById("passwordLabel").textContent = accessPoint
+    ? "Senha do Wi‑Fi que será criado"
+    : "Senha do Wi‑Fi ao qual o ESP32 vai se conectar";
+}
+
+function drawWrappedText(context, text, x, y, maxWidth, lineHeight, maxLines = 2) {
+  const words = String(text).split(/\s+/);
+  let line = "", lines = 0;
+  for (const word of words) {
+    const candidate = line ? `${line} ${word}` : word;
+    if (context.measureText(candidate).width <= maxWidth) {
+      line = candidate;
+      continue;
+    }
+    if (line) {
+      context.fillText(line, x, y + lines * lineHeight);
+      lines++;
+      line = "";
+    }
+    for (const character of word) {
+      if (line && context.measureText(line + character).width > maxWidth) {
+        context.fillText(line, x, y + lines * lineHeight);
+        lines++;
+        line = "";
+        if (lines >= maxLines) break;
+      }
+      line += character;
+    }
+    if (lines >= maxLines) break;
+  }
+  if (lines < maxLines && line) context.fillText(line, x, y + lines * lineHeight);
+}
+
+function makeConnectionCard() {
+  const canvas = document.createElement("canvas");
+  canvas.width = 3000; canvas.height = 1500; // cartão horizontal 2:1 (aprox. 30 × 15 cm a 254 dpi)
+  const ctx = canvas.getContext("2d");
+  const ssid = ssidEl.value.trim() || "(sem nome)";
+  const password = passEl.value || "Sem senha";
+  const device = deviceNameEl.value.trim() || "Carrinho";
+  const localUrl = `http://${device.toLowerCase()}.local`;
+  const wifiPayload = passEl.value
+    ? `WIFI:T:WPA;S:${wifiQrEscape(ssid)};P:${wifiQrEscape(passEl.value)};;`
+    : `WIFI:T:nopass;S:${wifiQrEscape(ssid)};;`;
+  const renderQr = value => {
+    const qr = document.createElement("canvas");
+    QRCodeLocal.draw(qr, value, 920);
+    return qr;
+  };
+  const wifiQr = renderQr(wifiPayload);
+  const siteItems = [{value:localUrl, canvas:renderQr(localUrl)}];
+  if (modeEl.value === "ap") siteItems.push({value:"http://192.168.4.1", canvas:renderQr("http://192.168.4.1")});
+
+  ctx.fillStyle = "#f1f2f4"; ctx.fillRect(0, 0, canvas.width, canvas.height);
+  ctx.fillStyle = "#e50914"; ctx.fillRect(0, 0, canvas.width, 24);
+  ctx.fillStyle = "#111318"; ctx.font = "900 104px Arial";
+  drawWrappedText(ctx, device, 90, 190, 1050, 112, 2);
+  ctx.fillStyle = "#e50914"; ctx.fillRect(90, 320, 190, 14);
+
+  ctx.fillStyle = "#fff"; ctx.fillRect(70, 370, 1160, 1040);
+  ctx.strokeStyle = "#d7d9de"; ctx.lineWidth = 4; ctx.strokeRect(70, 370, 1160, 1040);
+  ctx.fillStyle = "#e50914"; ctx.font = "900 38px Arial"; ctx.fillText("PASSO 1", 120, 475);
+  ctx.fillStyle = "#717580"; ctx.font = "800 34px Arial"; ctx.fillText("NOME DO WI-FI", 120, 650);
+  ctx.fillStyle = "#17191f"; ctx.font = "800 58px Arial"; drawWrappedText(ctx, ssid, 120, 735, 480, 70, 3);
+  ctx.fillStyle = "#e50914"; ctx.fillRect(120, 920, 480, 7);
+  ctx.fillStyle = "#717580"; ctx.font = "800 34px Arial"; ctx.fillText("SENHA", 120, 1035);
+  ctx.fillStyle = "#17191f"; ctx.font = "700 48px Arial"; drawWrappedText(ctx, password, 120, 1120, 480, 62, 3);
+  ctx.imageSmoothingEnabled = false;
+  ctx.drawImage(wifiQr, 625, 650, 540, 540);
+
+  ctx.fillStyle = "#fff"; ctx.fillRect(1270, 370, 1660, 1040);
+  ctx.strokeStyle = "#d7d9de"; ctx.lineWidth = 4; ctx.strokeRect(1270, 370, 1660, 1040);
+  ctx.fillStyle = "#e50914"; ctx.font = "900 38px Arial"; ctx.fillText("PASSO 2 • ENTRE NO SITE DO CARRINHO", 1325, 475);
+  const siteCount = siteItems.length;
+  const siteQrSize = siteCount === 1 ? 700 : 620;
+  const siteColumnWidth = siteCount === 1 ? 1450 : 780;
+  const siteGap = siteCount === 1 ? 0 : 24;
+  const siteTotalWidth = siteColumnWidth * siteCount + siteGap * (siteCount - 1);
+  const siteStartX = 1270 + (1660 - siteTotalWidth) / 2;
+  const siteY = 535;
+  siteItems.forEach((item, index) => {
+    const x = siteStartX + index * (siteColumnWidth + siteGap);
+    const qrX = x + (siteColumnWidth - siteQrSize) / 2;
+    ctx.imageSmoothingEnabled = false;
+    ctx.drawImage(item.canvas, qrX, siteY, siteQrSize, siteQrSize);
+    ctx.fillStyle = "#17191f"; ctx.font = "800 34px Arial"; ctx.textAlign = "center";
+    drawWrappedText(ctx, item.value, x + siteColumnWidth / 2, siteY + siteQrSize + 95, siteColumnWidth - 30, 44, 2);
+    ctx.textAlign = "left";
+  });
+  return canvas;
+}
+
+function downloadText(filename, text, type = "text/plain;charset=utf-8") {
+  const blob = new Blob([text], {type});
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;
@@ -412,9 +518,122 @@ document.getElementById("openPreview").addEventListener("click", () => {
 ssidEl.addEventListener("input", updateSummary);
 modeEl.addEventListener("change", updateSummary);
 deviceNameEl.addEventListener("input", updateSummary);
-document.querySelectorAll("[data-network-mode]").forEach(button=>button.addEventListener("click",()=>{modeEl.value=button.dataset.networkMode;document.querySelectorAll("[data-network-mode]").forEach(x=>x.classList.toggle("active",x===button));document.getElementById("ssidLabel").textContent=modeEl.value==="ap"?"Nome da rede criada":"Nome da rede existente";document.getElementById("passwordLabel").textContent=modeEl.value==="ap"?"Senha da rede criada":"Senha da rede existente";updateSummary()}));
+document.querySelectorAll("[data-network-mode]").forEach(button=>button.addEventListener("click",()=>{modeEl.value=button.dataset.networkMode;document.querySelectorAll("[data-network-mode]").forEach(x=>x.classList.toggle("active",x===button));updateNetworkLabels();updateSummary()}));
+document.getElementById("downloadCard").addEventListener("click", () => {
+  try {
+    const card = makeConnectionCard();
+    card.toBlob(blob => {
+      if (!blob) { message.className = "message error"; message.textContent = "Não foi possível preparar a imagem do cartão."; return; }
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `cartao_${safeFilePart(deviceNameEl.value)}.png`;
+      document.body.appendChild(link); link.click(); link.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+      message.className = "message";
+      message.textContent = "Cartão de conexão baixado em PNG, pronto para imprimir.";
+    }, "image/png");
+  } catch (error) {
+    message.className = "message error";
+    message.textContent = error.message;
+  }
+});
+
+function buildConfigurationFile() {
+  return {
+    format: "ctrl-forge-esp32-config",
+    version: 1,
+    wifi: {mode: modeEl.value, ssid: ssidEl.value, password: passEl.value},
+    deviceName: deviceNameEl.value,
+    layout: state.layout,
+    hardware: {pins: [...state.pins], assignments: [...state.assignments]}
+  };
+}
+
+function validateConfigurationFile(data) {
+  if (!data || data.format !== "ctrl-forge-esp32-config" || data.version !== 1) {
+    throw new Error("Este arquivo não é uma configuração CTRL.FORGE compatível.");
+  }
+  if (!data.wifi || !["ap", "sta"].includes(data.wifi.mode)) throw new Error("Modo de Wi‑Fi inválido no arquivo.");
+  if (typeof data.wifi.ssid !== "string" || data.wifi.ssid.length > 31) throw new Error("Nome de Wi‑Fi inválido no arquivo.");
+  if (typeof data.wifi.password !== "string" || data.wifi.password.length > 63) throw new Error("Senha de Wi‑Fi inválida no arquivo.");
+  if (typeof data.deviceName !== "string" || data.deviceName.length > 32) throw new Error("Nome do ESP32 inválido no arquivo.");
+  if (typeof data.layout !== "string" || !Object.hasOwn(layouts, data.layout)) throw new Error("Controle inválido no arquivo.");
+  const pins = data.hardware?.pins;
+  const assignments = data.hardware?.assignments;
+  if (!Array.isArray(pins) || pins.length !== 4 || pins.some(pin => !Number.isInteger(pin) || pin < 0) || new Set(pins).size !== 4) {
+    throw new Error("O arquivo precisa ter quatro GPIOs válidos e diferentes.");
+  }
+  const validAssignments = Object.keys(labels);
+  if (!Array.isArray(assignments) || assignments.length !== 4 || assignments.some(item => !validAssignments.includes(item)) || new Set(assignments).size !== 4) {
+    throw new Error("As funções dos motores no arquivo são inválidas.");
+  }
+  return data;
+}
+
+const configFileInput = document.getElementById("configFile");
+const configMessage = document.getElementById("configMessage");
+document.getElementById("downloadConfig").addEventListener("click", () => {
+  const data = buildConfigurationFile();
+  const filename = `configuracao_${safeFilePart(deviceNameEl.value)}.json`;
+  downloadText(filename, JSON.stringify(data, null, 2), "application/json;charset=utf-8");
+  configMessage.textContent = `Configuração baixada: ${filename}`;
+  configMessage.classList.remove("error");
+});
+
+document.getElementById("loadConfig").addEventListener("click", () => configFileInput.click());
+configFileInput.addEventListener("change", async () => {
+  const file = configFileInput.files?.[0];
+  if (!file) return;
+  try {
+    if (file.size > 1024 * 1024) throw new Error("O arquivo de configuração é grande demais.");
+    const data = validateConfigurationFile(JSON.parse(await file.text()));
+    modeEl.value = data.wifi.mode;
+    ssidEl.value = data.wifi.ssid;
+    passEl.value = data.wifi.password;
+    deviceNameEl.value = data.deviceName;
+    state.pins = [...data.hardware.pins];
+    state.assignments = [...data.hardware.assignments];
+    document.querySelectorAll(".gpio-input").forEach((input, index) => { input.value = state.pins[index]; });
+    document.querySelectorAll("[data-network-mode]").forEach(button => {
+      button.classList.toggle("active", button.dataset.networkMode === data.wifi.mode);
+    });
+    renderPinMap();
+    updateNetworkLabels();
+    selectLayout(data.layout);
+    configMessage.textContent = `Configuração carregada: ${file.name}`;
+    configMessage.classList.remove("error");
+  } catch (error) {
+    configMessage.textContent = error.message || "Não foi possível carregar essa configuração.";
+    configMessage.classList.add("error");
+  } finally {
+    configFileInput.value = "";
+  }
+});
+
 document.getElementById("resetHardware").addEventListener("click",()=>{state.pins=[18,32,27,26];state.assignments=["motorA_frente","motorA_re","motorB_frente","motorB_re"];document.querySelectorAll(".gpio-input").forEach((x,i)=>x.value=state.pins[i]);renderPinMap();updateSummary()});
 passEl.addEventListener("input", updateSummary);
+
+function seedFloatingHearts() {
+  const container = document.querySelector(".floating-hearts");
+  if (!container) return;
+  const hearts = document.createDocumentFragment();
+  for (let i = 0; i < 30; i++) {
+    const heart = document.createElement("span");
+    heart.className = "floating-heart";
+    heart.textContent = "♥";
+    heart.setAttribute("aria-hidden", "true");
+    const duration = 5 + Math.random() * 5.5;
+    heart.style.setProperty("--heart-left", `${33 + Math.random() * 43}%`);
+    heart.style.setProperty("--heart-size", `${12 + Math.random() * 27}px`);
+    heart.style.setProperty("--heart-duration", `${duration}s`);
+    heart.style.setProperty("--heart-delay", `${-Math.random() * duration}s`);
+    heart.style.setProperty("--heart-drift", `${-70 + Math.random() * 140}px`);
+    heart.style.setProperty("--heart-glow", `${0.38 + Math.random() * 0.55}`);
+    hearts.appendChild(heart);
+  }
+  container.appendChild(hearts);
+}
 
 
 const rail = document.getElementById("controllerRail");
@@ -422,5 +641,7 @@ document.getElementById("railLeft")?.addEventListener("click", () => rail.scroll
 document.getElementById("railRight")?.addEventListener("click", () => rail.scrollBy({left:420, behavior:"smooth"}));
 
 renderPinMap();
+updateNetworkLabels();
+seedFloatingHearts();
 selectLayout("joystick");
 updateSummary();

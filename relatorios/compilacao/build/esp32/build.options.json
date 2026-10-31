@@ -1,0 +1,9 @@
+{
+  "additionalFiles": "",
+  "compiler.optimization_flags": "-Os",
+  "customBuildProperties": "",
+  "fqbn": "esp32:esp32:esp32",
+  "hardwareFolders": "/home/heisenberg0x01/.arduino15/packages/esp32/hardware/esp32/3.3.12,/home/heisenberg0x01/.arduino15/packages/esp32/hardware/esp32/3.3.12",
+  "otherLibrariesFolders": "/home/heisenberg0x01/Arduino/libraries",
+  "sketchLocation": "/run/media/heisenberg0x01/SSD Kingston/PROJECTS/PET/FORMACAO/gerador_codigo/relatorios/compilacao/blocos/controle_variaveis"
+}
