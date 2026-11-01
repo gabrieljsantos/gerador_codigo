@@ -3,7 +3,7 @@
 
 Requer apenas Python para gerar os sketches e arduino-cli configurado com
 uma plataforma compatível (padrão: esp32:esp32:esp32).
-O gerador blocos_wifi não é incluído nesta bateria.
+Inclui Wi-Fi, blocos tradicionais e o editor Blocks Live incorporado no firmware.
 """
 
 from __future__ import annotations
@@ -123,15 +123,15 @@ def generate_downloaded_sketches(node: str, destination: Path) -> list[dict]:
 const fs=require('fs'),vm=require('vm'),path=require('path');
 const root=process.argv[1],out=process.argv[2],results=[];
 function el(value=''){return {value,textContent:'',innerHTML:'',className:'',srcdoc:'',
- classList:{toggle(){},add(){},remove(){}},style:{},dataset:{},addEventListener(){},
- appendChild(){},remove(){},click(){},select(){},insertAdjacentHTML(){},replaceChildren(){},
- querySelectorAll(){return []}}}
+ classList:{toggle(){},add(){},remove(){}},parentElement:{classList:{add(){},remove(){}},removeAttribute(){}},style:{setProperty(){}},dataset:{},addEventListener(){},
+ appendChild(){},setAttribute(){},remove(){},click(){},select(){},insertAdjacentHTML(){},replaceChildren(){},
+ querySelector(){return el()},querySelectorAll(){return []}}}
 function load(file,values){
  const els={};for(const [k,v] of Object.entries(values))els[k]=el(v);
  const get=id=>els[id]||(els[id]=el());
  const document={getElementById:get,querySelector(s){const m=s.match(/^#([\w-]+)$/);return m?get(m[1]):el()},
-  querySelectorAll(){return []},createElement(){return el()},body:el(),addEventListener(){}};
- const ctx={console,document,window:{addEventListener(){},open(){}},
+  querySelectorAll(){return []},createElement(){return el()},createDocumentFragment(){return el()},body:el(),addEventListener(){}};
+ const ctx={console,document,window:{addEventListener(){},open(){},CTRL_FORGE_BLOCKS_EDITOR:null},TextEncoder,
   localStorage:{getItem(){return null},setItem(){}},URL:{createObjectURL(){return ''},revokeObjectURL(){}},
   Blob:function(){},structuredClone:x=>JSON.parse(JSON.stringify(x)),setTimeout:()=>0,clearTimeout(){},
   navigator:{clipboard:{writeText:async()=>{}}}};
@@ -139,7 +139,7 @@ function load(file,values){
 }
 function save(generator,name,code){const dir=path.join(out,generator,name);fs.mkdirSync(dir,{recursive:true});
  for(const f of fs.readdirSync(dir))if(f.endsWith('.ino'))fs.unlinkSync(path.join(dir,f));
- const file=path.join(dir,name+'.ino');fs.writeFileSync(file,code);results.push({generator:generator==='wifi'?'Wi-Fi':'Blocos tradicional',case:name,sketch:path.relative(out,file)});}
+ const file=path.join(dir,name+'.ino');fs.writeFileSync(file,code);results.push({generator:generator==='wifi'?'Wi-Fi':generator==='blocos_wifi'?'Blocos em tempo real':'Blocos tradicional',case:name,sketch:path.relative(out,file)});}
 const w=load(path.join(root,'wifi/app.js'),{ssid:'ROBO_ESP32',password:'12345678',deviceName:'robo-teste',wifiMode:'ap',pinMap:'',preview:'',message:'',summary:''});
 for(const name of Object.keys(vm.runInContext('layouts',w.ctx))){
  vm.runInContext(`state.layout=${JSON.stringify(name)}`,w.ctx);
@@ -157,6 +157,12 @@ for(const [name,blocks] of cases){
  vm.runInContext(`state.name=${JSON.stringify('teste_'+name)};state.blocks=JSON.parse(${JSON.stringify(JSON.stringify(blocks))})`,b.ctx);
  save('blocos',name,vm.runInContext('generateFirmware()',b.ctx));
 }
+const liveValues={wifiMode:'ap',ssid:'CTRL-FORGE-LIVE',password:'12345678',deviceName:'carrinho-blocos',projectName:'carrinho_blocos_live',hardwareGrid:'',hardwareStatus:'',networkStatus:'',deviceAddress:'',deviceIpAddress:'',addressHelp:'',summary:'',message:'',codePreview:'',blockCount:''};
+const live=load(path.join(root,'blocos_wifi/app.js'),liveValues);
+vm.runInContext(fs.readFileSync(path.join(root,'blocos_wifi/editor_bundle.js'),'utf8'),live.ctx,{filename:'editor_bundle.js'});
+save('blocos_wifi','ponto_de_acesso',vm.runInContext('firmware()',live.ctx));
+vm.runInContext(`document.querySelector('#wifiMode').value='sta'`,live.ctx);
+save('blocos_wifi','rede_existente',vm.runInContext('firmware()',live.ctx));
 fs.writeFileSync(path.join(out,'casos.json'),JSON.stringify(results,null,2));console.log(JSON.stringify(results));
 '''
     proc = subprocess.run([node, "-e", runner, str(ROOT), str(destination)],
@@ -195,7 +201,7 @@ def write_reports(out: Path, results: list[dict], metadata: dict):
              f"Gerado em: {metadata['generated_at']}", f"Compilador: {metadata.get('compiler','não encontrado')}",
              f"Placa: `{metadata['fqbn']}`", "",
              f"**Resultado:** {summary['counts']['compilou']} compilados, {summary['counts']['falhou']} falharam, {summary['counts']['não executado']} não executados.", "",
-             "O gerador `blocos_wifi` foi excluído conforme solicitado.", "",
+             "A bateria inclui os geradores Wi-Fi, Blocos tradicional e Blocos em tempo real.", "",
              "| Gerador | Caso | Resultado | Diagnóstico |", "|---|---|---|---|"]
     for r in results:
         diag = "; ".join(r.get("errors", [])) or r.get("reason", "—")
@@ -203,7 +209,7 @@ def write_reports(out: Path, results: list[dict], metadata: dict):
     lines += ["", "Os logs completos ficam na pasta `logs/`; os sketches compilados ficam organizados por gerador e caso.", ""]
     (out / "relatorio.md").write_text("\n".join(lines), encoding="utf-8")
     rows="".join(f"<tr><td>{html.escape(r['generator'])}</td><td>{html.escape(r['case'])}</td><td>{html.escape(r.get('status','não executado'))}</td><td><pre>{html.escape('; '.join(r.get('errors',[])) or r.get('reason','—'))}</pre></td></tr>" for r in results)
-    (out / "relatorio.html").write_text("<!doctype html><meta charset='utf-8'><title>Relatório</title><style>body{font:15px system-ui;max-width:1100px;margin:2rem auto;padding:0 1rem;background:#101116;color:#eee}table{border-collapse:collapse;width:100%}td,th{border:1px solid #444;padding:.6rem;text-align:left}pre{white-space:pre-wrap;color:#ffb4aa}</style><h1>Relatório de compilação</h1><p>"+html.escape(f"{summary['counts']['compilou']} compilados · {summary['counts']['falhou']} falharam · {summary['counts']['não executado']} não executados · {metadata.get('fqbn')}")+"</p><p>blocos_wifi excluído.</p><table><thead><tr><th>Gerador</th><th>Caso</th><th>Resultado</th><th>Diagnóstico</th></tr></thead><tbody>"+rows+"</tbody></table>",encoding="utf-8")
+    (out / "relatorio.html").write_text("<!doctype html><meta charset='utf-8'><title>Relatório</title><style>body{font:15px system-ui;max-width:1100px;margin:2rem auto;padding:0 1rem;background:#101116;color:#eee}table{border-collapse:collapse;width:100%}td,th{border:1px solid #444;padding:.6rem;text-align:left}pre{white-space:pre-wrap;color:#ffb4aa}</style><h1>Relatório de compilação</h1><p>"+html.escape(f"{summary['counts']['compilou']} compilados · {summary['counts']['falhou']} falharam · {summary['counts']['não executado']} não executados · {metadata.get('fqbn')}")+"</p><p>Inclui Wi-Fi, Blocos tradicional e Blocos em tempo real.</p><table><thead><tr><th>Gerador</th><th>Caso</th><th>Resultado</th><th>Diagnóstico</th></tr></thead><tbody>"+rows+"</tbody></table>",encoding="utf-8")
 
 
 def main():
@@ -214,7 +220,7 @@ def main():
     ap.add_argument("--timeout",type=int,default=300,help="Limite de segundos por compilação")
     args=ap.parse_args()
     out=args.output.resolve();out.mkdir(parents=True,exist_ok=True)
-    for folder in ("wifi", "blocos", "logs", "build"):
+    for folder in ("wifi", "blocos", "blocos_wifi", "logs", "build"):
         target = out / folder
         if target.exists():
             shutil.rmtree(target, ignore_errors=True)
@@ -230,7 +236,7 @@ def main():
               "esp32_core":core_version,
               "generation":"generateFirmware() real da página, salvo como .ino exportado",
               "node":node,
-              "excluded":"blocos_wifi"}
+              "included":["wifi","blocos","blocos_wifi"]}
     if not cli:
         for r in results:
             r.update(status="não executado",reason="arduino-cli não instalado ou não está no PATH")
